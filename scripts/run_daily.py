@@ -23,9 +23,10 @@ sys.path.insert(0, str(Path(__file__).parent))
 from fetch_calls import fetch_calls_for_date, save_calls, load_phones
 from transcribe import transcribe_date
 from analyze_calls import analyze_date
-from manager_stats import get_daily_manager_block
+from manager_stats import get_daily_manager_block, load_phones_map
 from direction_stats import get_daily_direction_block
-from send_telegram import send_message
+from export_excel import export_problem_calls_excel
+from send_telegram import send_message, send_document
 
 DATA_DIR = Path(__file__).parent.parent / "data"
 CALLS_DIR = DATA_DIR / "calls"
@@ -207,9 +208,21 @@ def main():
 
     full_report = "\n\n".join(blocks)
 
-    # 5. Отправить в Telegram
-    print("\n[run_daily] Step 5: Sending to Telegram...")
+    # 5. Экспорт Excel
+    print("\n[run_daily] Step 5: Exporting Excel...")
+    phones_map = load_phones_map()
+    excel_path = export_problem_calls_excel(target_date, phones_map)
+    if excel_path:
+        print(f"[run_daily] Excel saved: {excel_path}")
+
+    # 6. Отправить в Telegram
+    print("\n[run_daily] Step 6: Sending to Telegram...")
     send_message(full_report, parse_mode="HTML")
+    if excel_path:
+        send_document(
+            str(excel_path),
+            caption=f"📋 Все звонки с транскриптами — {target_date.strftime('%d.%m.%Y')}",
+        )
     print("\n[run_daily] Done!")
 
 
