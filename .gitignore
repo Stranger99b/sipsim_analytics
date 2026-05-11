@@ -1,0 +1,9 @@
+.env
+data/calls/
+data/transcripts/
+data/reports/
+__pycache__/
+*.pyc
+*.wav
+*.mp3
+*.ogg
