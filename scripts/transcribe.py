@@ -12,10 +12,10 @@ import os
 import sys
 import json
 import argparse
+import requests
 from datetime import datetime, timedelta
 from pathlib import Path
 from dotenv import load_dotenv
-from deepgram import DeepgramClient, PrerecordedOptions
 
 load_dotenv(Path(__file__).parent.parent / ".env")
 
@@ -27,14 +27,15 @@ TRANSCRIPTS_DIR = DATA_DIR / "transcripts"
 
 TRANSCRIPTS_DIR.mkdir(parents=True, exist_ok=True)
 
-DEEPGRAM_OPTIONS = PrerecordedOptions(
-    model="nova-2",
-    language="ru",
-    punctuate=True,
-    diarize=True,
-    smart_format=True,
-    utterances=True,
-)
+DEEPGRAM_URL = "https://api.deepgram.com/v1/listen"
+DEEPGRAM_PARAMS = {
+    "model": "nova-2",
+    "language": "ru",
+    "punctuate": "true",
+    "diarize": "true",
+    "smart_format": "true",
+    "utterances": "true",
+}
 
 
 def transcribe_call(call: dict, force: bool = False) -> dict | None:
@@ -54,25 +55,29 @@ def transcribe_call(call: dict, force: bool = False) -> dict | None:
         audio_url = f"{audio_url}{sep}token={SIPSIM_TOKEN}"
 
     try:
-        client = DeepgramClient(DEEPGRAM_API_KEY)
-        response = client.listen.prerecorded.v("1").transcribe_url(
-            {"url": audio_url},
-            DEEPGRAM_OPTIONS,
+        headers = {"Authorization": f"Token {DEEPGRAM_API_KEY}", "Content-Type": "application/json"}
+        resp = requests.post(
+            DEEPGRAM_URL,
+            headers=headers,
+            params=DEEPGRAM_PARAMS,
+            json={"url": audio_url},
+            timeout=300,
         )
+        resp.raise_for_status()
+        data = resp.json()
 
-        channels = response.results.channels
-        alternatives = channels[0].alternatives if channels else []
-        transcript_text = alternatives[0].transcript if alternatives else ""
+        channels = data.get("results", {}).get("channels", [])
+        alternatives = channels[0].get("alternatives", []) if channels else []
+        transcript_text = alternatives[0].get("transcript", "") if alternatives else ""
 
         utterances = []
-        if response.results.utterances:
-            for u in response.results.utterances:
-                utterances.append({
-                    "speaker": u.speaker,
-                    "start": round(u.start, 2),
-                    "end": round(u.end, 2),
-                    "text": u.transcript,
-                })
+        for u in data.get("results", {}).get("utterances", []):
+            utterances.append({
+                "speaker": u.get("speaker", 0),
+                "start": round(u.get("start", 0), 2),
+                "end": round(u.get("end", 0), 2),
+                "text": u.get("transcript", ""),
+            })
 
         result = {
             "public_id": public_id,
@@ -83,8 +88,8 @@ def transcribe_call(call: dict, force: bool = False) -> dict | None:
             "start_time": call.get("start_time"),
             "answered_time": call.get("answered_time"),
             "end_time": call.get("end_time"),
-            "phone_id": call.get("phone_id") or call.get("phone"),
-            "client_number": call.get("from") or call.get("caller") or call.get("client_number"),
+            "manager_number": call.get("caller_number"),
+            "client_number": call.get("target_number") if call.get("call_type") == "outbound" else call.get("caller_number"),
             "transcript": transcript_text,
             "utterances": utterances,
         }

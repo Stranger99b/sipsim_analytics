@@ -33,9 +33,10 @@ def fetch_phones() -> dict:
     resp = requests.get(f"{BASE_URL}/phones", params={"token": SIPSIM_TOKEN}, timeout=30)
     resp.raise_for_status()
     data = resp.json()
-    PHONES_FILE.write_text(json.dumps(data, ensure_ascii=False, indent=2))
-    print(f"[fetch_calls] Phones cached: {PHONES_FILE}")
-    return data
+    phones_list = data.get("phones", data) if isinstance(data, dict) else data
+    PHONES_FILE.write_text(json.dumps(phones_list, ensure_ascii=False, indent=2))
+    print(f"[fetch_calls] Phones cached: {len(phones_list)} phones → {PHONES_FILE}")
+    return phones_list
 
 
 def load_phones() -> dict:
@@ -61,14 +62,20 @@ def fetch_calls_for_date(date: datetime) -> list:
         resp.raise_for_status()
         data = resp.json()
 
-        calls = data if isinstance(data, list) else data.get("data", data.get("calls", []))
+        if isinstance(data, list):
+            calls = data
+        else:
+            calls = data.get("calls", data.get("data", []))
+
         if not calls:
             break
 
         all_calls.extend(calls)
-        print(f"[fetch_calls] Page {page}: got {len(calls)} calls (total so far: {len(all_calls)})")
+        total = data.get("total", len(all_calls)) if isinstance(data, dict) else len(all_calls)
+        limit = data.get("limit", 100) if isinstance(data, dict) else 100
+        print(f"[fetch_calls] Page {page}: got {len(calls)} calls (total reported: {total})")
 
-        if len(calls) < 100:
+        if len(all_calls) >= total:
             break
         page += 1
 

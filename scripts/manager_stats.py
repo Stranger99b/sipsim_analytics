@@ -16,24 +16,40 @@ ANALYSIS_DIR = DATA_DIR / "analysis"
 PHONES_FILE = DATA_DIR / "phones_cache.json"
 
 
+MANAGERS_CONFIG_FILE = DATA_DIR / "managers.json"
+
+
 def load_phones_map() -> dict:
-    """phone_id → имя менеджера."""
+    """
+    number (+375...) → имя менеджера.
+    Берёт из managers.json (пользовательская настройка) или генерирует из phones_cache.json.
+    """
+    # Сначала пользовательский конфиг
+    if MANAGERS_CONFIG_FILE.exists():
+        return json.loads(MANAGERS_CONFIG_FILE.read_text())
+
+    # Иначе: internal_number → number
     if not PHONES_FILE.exists():
         return {}
-    data = json.loads(PHONES_FILE.read_text())
+    phones_list = json.loads(PHONES_FILE.read_text())
     mapping = {}
-    phones_list = data if isinstance(data, list) else data.get("phones", data.get("data", []))
     for p in phones_list:
-        pid = str(p.get("id") or p.get("phone_id") or "")
-        name = p.get("name") or p.get("username") or p.get("display_name") or pid
-        if pid:
-            mapping[pid] = name
+        num = p.get("number", "")
+        internal = p.get("internal_number", "")
+        phone_type = p.get("type", "regular")
+        if num and phone_type == "regular":
+            mapping[num] = f"Менеджер {internal}"
     return mapping
 
 
 def get_manager_name(call: dict, phones_map: dict) -> str:
-    pid = str(call.get("phone_id") or call.get("phone") or call.get("answerer") or "")
-    return phones_map.get(pid, pid or "Неизвестный")
+    """Определяет менеджера: для исходящих — caller_number, для входящих — answered_phone_number."""
+    call_type = call.get("call_type", "")
+    if call_type == "outbound":
+        num = call.get("caller_number", "")
+    else:
+        num = call.get("answered_phone_number") or call.get("caller_number", "")
+    return phones_map.get(num, num or "Неизвестный")
 
 
 def compute_stats(calls: list, analyses: dict, phones_map: dict) -> dict:

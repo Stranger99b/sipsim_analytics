@@ -108,6 +108,9 @@ def analyze_call(transcript_data: dict, force: bool = False) -> dict | None:
             if raw.startswith("json"):
                 raw = raw[4:]
 
+        if not raw:
+            raise ValueError("Empty response from Claude")
+
         parsed = json.loads(raw)
         parsed["public_id"] = public_id
         out_file.write_text(json.dumps(parsed, ensure_ascii=False, indent=2))
@@ -115,7 +118,18 @@ def analyze_call(transcript_data: dict, force: bool = False) -> dict | None:
 
     except Exception as e:
         print(f"[analyze] ERROR {public_id}: {e}")
-        return None
+        # Сохраняем заглушку чтобы не повторять
+        fallback = {
+            "public_id": public_id,
+            "direction": None,
+            "quality_score": None,
+            "outcome": "unknown",
+            "issues": [],
+            "objections": [],
+            "manager_highlights": f"Анализ не удался: {str(e)[:60]}",
+        }
+        out_file.write_text(json.dumps(fallback, ensure_ascii=False, indent=2))
+        return fallback
 
 
 def analyze_date(date: datetime, force: bool = False) -> list[dict]:
