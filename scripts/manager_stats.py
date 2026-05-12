@@ -116,6 +116,122 @@ def compute_stats(calls: list, analyses: dict, phones_map: dict) -> dict:
     return dict(stats)
 
 
+PRODUCTIVE_OUTCOMES = {"booked", "interested"}
+
+SCORE_MEDALS = ["🥇", "🥈", "🥉"]
+
+
+def compute_manager_score(s: dict) -> dict:
+    """100-балльный скоринг: качество(60) + ответы(15) + ожидание(15) + длительность(10)."""
+    # 1. Качество AI (60)
+    if s["quality_scores"]:
+        avg_q = sum(s["quality_scores"]) / len(s["quality_scores"])
+        q_pts = round(avg_q / 5 * 60)
+    else:
+        avg_q = None
+        q_pts = 0
+
+    # 2. Доступность — answer rate (15)
+    total = s["total"]
+    answered = s["answered"]
+    a_pts = round((answered / total) * 15) if total else 0
+
+    # 3. Время ожидания — меньше лучше (15)
+    if s["wait_times"]:
+        avg_wait = sum(s["wait_times"]) / len(s["wait_times"])
+        if avg_wait <= 15:
+            w_pts = 15
+        elif avg_wait <= 25:
+            w_pts = 12
+        elif avg_wait <= 35:
+            w_pts = 9
+        elif avg_wait <= 50:
+            w_pts = 6
+        else:
+            w_pts = 3
+    else:
+        w_pts = 8  # нет данных — нейтрально
+
+    # 4. Средняя длительность — 60-300с оптимально (10)
+    if s["durations"]:
+        avg_dur = sum(s["durations"]) / len(s["durations"])
+        if 60 <= avg_dur <= 300:
+            d_pts = 10
+        elif avg_dur < 60:
+            d_pts = 4
+        elif avg_dur <= 480:
+            d_pts = 7
+        else:
+            d_pts = 5
+    else:
+        avg_dur = None
+        d_pts = 5
+
+    total_score = q_pts + a_pts + w_pts + d_pts
+    return {
+        "total": total_score,
+        "q_pts": q_pts, "a_pts": a_pts, "w_pts": w_pts, "d_pts": d_pts,
+        "avg_quality": avg_q,
+        "avg_wait": (sum(s["wait_times"]) / len(s["wait_times"])) if s["wait_times"] else None,
+        "avg_dur": (sum(s["durations"]) / len(s["durations"])) if s["durations"] else None,
+    }
+
+
+def _score_bar(score: int) -> str:
+    filled = round(score / 10)
+    return "█" * filled + "░" * (10 - filled)
+
+
+def format_manager_scorecard(stats: dict, period_label: str) -> str:
+    """Рейтинговая таблица менеджеров для еженедельного отчёта."""
+    scored = []
+    for manager, s in stats.items():
+        sc = compute_manager_score(s)
+        scored.append((manager, s, sc))
+    scored.sort(key=lambda x: x[2]["total"], reverse=True)
+
+    lines = [f"<b>🏆 РЕЙТИНГ МЕНЕДЖЕРОВ — {period_label}</b>"]
+
+    for rank, (manager, s, sc) in enumerate(scored):
+        medal = SCORE_MEDALS[rank] if rank < 3 else f"{rank + 1}."
+        total = sc["total"]
+        bar = _score_bar(total)
+
+        avg_q = f"{sc['avg_quality']:.1f}/5" if sc["avg_quality"] else "—"
+        avg_wait = f"{round(sc['avg_wait'])}с" if sc["avg_wait"] else "—"
+        avg_dur_sec = sc["avg_dur"]
+        avg_dur = f"{int(avg_dur_sec)//60}:{int(avg_dur_sec)%60:02d}" if avg_dur_sec else "—"
+        answer_rate = round(s["answered"] / s["total"] * 100) if s["total"] else 0
+
+        if total >= 80:
+            level = "🟢"
+        elif total >= 60:
+            level = "🟡"
+        else:
+            level = "🔴"
+
+        suffix = ""
+        if rank == 0:
+            suffix = " ← лидер"
+        elif rank == len(scored) - 1 and len(scored) > 1:
+            suffix = " ← требует внимания"
+
+        lines.append(
+            f"\n{medal} <b>{manager}</b> — {level} <b>{total}/100</b>{suffix}\n"
+            f"   {bar}\n"
+            f"   ⭐ Качество: {avg_q} ({sc['q_pts']}/60)  "
+            f"📞 Ответы: {s['answered']}/{s['total']} {answer_rate}% ({sc['a_pts']}/15)\n"
+            f"   ⏱ Ожидание: {avg_wait} ({sc['w_pts']}/15)  "
+            f"🕐 Длит: {avg_dur} ({sc['d_pts']}/10)"
+        )
+
+        missed = s["missed"]
+        if missed > 0:
+            lines.append(f"   ⚠️ Пропущено: {missed} зв.")
+
+    return "\n".join(lines)
+
+
 def format_manager_block(stats: dict, date_label: str) -> str:
     lines = [f"<b>👥 МЕНЕДЖЕРЫ — {date_label}</b>"]
 

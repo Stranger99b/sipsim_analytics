@@ -13,6 +13,7 @@ import json
 import shutil
 import subprocess
 import argparse
+import time
 from datetime import datetime, timedelta
 from pathlib import Path
 from collections import Counter
@@ -21,7 +22,7 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).parent.parent / ".env")
 sys.path.insert(0, str(Path(__file__).parent))
 
-from manager_stats import get_weekly_manager_block, load_phones_map, compute_stats, load_analyses_for_date
+from manager_stats import get_weekly_manager_block, format_manager_scorecard, load_phones_map, compute_stats, load_analyses_for_date
 from direction_stats import get_weekly_direction_block
 from send_telegram import send_message
 
@@ -117,14 +118,23 @@ def collect_weekly_data(end_date: datetime) -> dict:
 def build_ai_block(data: dict) -> str:
     claude_bin = shutil.which("claude") or "/home/user/.local/bin/claude"
     prompt = WEEKLY_AI_PROMPT.replace("{data}", json.dumps(data, ensure_ascii=False, indent=2))
-    try:
-        proc = subprocess.run(
-            [claude_bin, "--print", "--dangerously-skip-permissions", "-p", prompt],
-            capture_output=True, text=True, timeout=180,
-        )
-        return proc.stdout.strip() if proc.returncode == 0 else "[AI анализ недоступен]"
-    except Exception as e:
-        return f"[AI анализ: ошибка — {e}]"
+    for attempt in range(3):
+        try:
+            proc = subprocess.run(
+                [claude_bin, "--print", "--dangerously-skip-permissions", "-p", prompt],
+                capture_output=True, text=True, timeout=300,
+            )
+            if proc.returncode == 0 and proc.stdout.strip():
+                return proc.stdout.strip()
+            if attempt < 2:
+                time.sleep((attempt + 1) * 15)
+        except subprocess.TimeoutExpired:
+            print(f"[run_weekly] AI timeout attempt {attempt+1}/3")
+            if attempt < 2:
+                time.sleep(15)
+        except Exception as e:
+            return f"[AI анализ: ошибка — {e}]"
+    return "[AI анализ недоступен]"
 
 
 def main():
@@ -161,10 +171,24 @@ def main():
     manager_block = get_weekly_manager_block(end_date)
     direction_block = get_weekly_direction_block(end_date)
 
+    # Скоркард менеджеров
+    all_calls = []
+    all_analyses = {}
+    phones_map = load_phones_map()
+    for i in range(7):
+        d = end_date - timedelta(days=i)
+        f = CALLS_DIR / f"{d.strftime('%Y-%m-%d')}.json"
+        if f.exists():
+            day_calls = json.loads(f.read_text())
+            all_calls.extend(day_calls)
+            all_analyses.update(load_analyses_for_date(d))
+    weekly_stats = compute_stats(all_calls, all_analyses, phones_map)
+    scorecard_block = format_manager_scorecard(weekly_stats, data["period"])
+
     print("[run_weekly] Requesting AI analysis...")
     ai_block = build_ai_block(data)
 
-    full_report = "\n\n".join(filter(None, [header, manager_block, direction_block, ai_block]))
+    full_report = "\n\n".join(filter(None, [header, scorecard_block, manager_block, direction_block, ai_block]))
 
     send_message(full_report, parse_mode="HTML")
     print("[run_weekly] Done!")
