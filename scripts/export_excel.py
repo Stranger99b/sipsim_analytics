@@ -37,6 +37,12 @@ SCORE_COLORS = {
     5: "2E8B57",
 }
 
+# Порог длинных звонков (секунды)
+LONG_CALL_SEC = 180   # > 3 мин — длинный
+VERY_LONG_CALL_SEC = 300  # > 5 мин — очень длинный
+# Исходы, считающиеся "результатом" для длинного звонка
+PRODUCTIVE_OUTCOMES = {"booked", "interested"}
+
 OUTCOME_RU = {
     "booked": "Бронь",
     "interested": "Интерес",
@@ -167,6 +173,7 @@ def export_problem_calls_excel(
             "busy": "Занято",
         }.get(sip_status, sip_status)
 
+        long_no_result = dur >= LONG_CALL_SEC and raw_outcome not in PRODUCTIVE_OUTCOMES and not client_unavailable
         rows.append({
             "time": time_str,
             "manager": manager_name,
@@ -184,6 +191,8 @@ def export_problem_calls_excel(
             "transcript": transcript_text,
             "_score_num": score or 99,
             "_client_unavailable": client_unavailable,
+            "_dur_sec": dur,
+            "_long_no_result": long_no_result,
         })
 
     if not rows:
@@ -211,12 +220,14 @@ def export_problem_calls_excel(
     total = len(rows)
     answered = sum(1 for r in rows if r["status"] == "Отвечен")
     problematic = sum(1 for r in rows if r["_score_num"] <= min_score_threshold and not r["_client_unavailable"])
+    long_no_result = sum(1 for r in rows if r["_long_no_result"])
     ws.merge_cells("A2:N2")
     stats_cell = ws["A2"]
     stats_cell.value = (
         f"Всего: {total}  |  Отвечено: {answered}  |  "
         f"Проблемных (оценка ≤{min_score_threshold}): {problematic}  |  "
-        f"Для РОПа: расшифровка каждого звонка в столбце N"
+        f"Длинных без результата (>3 мин): {long_no_result}  |  "
+        f"Транскрипт в столбце N"
     )
     stats_cell.font = Font(name="Calibri", size=10, italic=True, color="555555")
     stats_cell.fill = PatternFill("solid", fgColor=COLOR_SUBHEADER)
@@ -248,10 +259,17 @@ def export_problem_calls_excel(
         row_fill = _row_fill(score)
         is_problem = score is not None and score <= min_score_threshold and not r["_client_unavailable"]
 
+        dur_sec = r["_dur_sec"]
+        long_no_result = r["_long_no_result"]
+        # Исход: добавляем маркер если длинный без результата
+        outcome_val = r["outcome"]
+        if long_no_result:
+            outcome_val = f"⚡ {outcome_val}"
+
         values = [
             r["time"], r["manager"], r["call_type"], r["status"], r["client"],
             r["duration"], r["wait"], score if score else "—",
-            r["outcome"], r["direction"],
+            outcome_val, r["direction"],
             r["issues"], r["objections"], r["highlights"], r["transcript"],
         ]
 
@@ -269,6 +287,13 @@ def export_problem_calls_excel(
             if col_idx == 8 and score is not None:
                 cell.fill = _score_fill(score)
                 cell.font = Font(name="Calibri", size=10, bold=True, color="FFFFFF")
+            # Длительность — подсветка длинных звонков
+            elif col_idx == 6:
+                if dur_sec >= VERY_LONG_CALL_SEC:
+                    cell.fill = PatternFill("solid", fgColor="FFAA44")  # оранжевый > 5 мин
+                    cell.font = Font(name="Calibri", size=9, bold=True)
+                elif dur_sec >= LONG_CALL_SEC:
+                    cell.fill = PatternFill("solid", fgColor="FFF0B0")  # светло-жёлтый > 3 мин
             elif row_fill and is_problem:
                 cell.fill = row_fill
 
