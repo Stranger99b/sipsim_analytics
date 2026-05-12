@@ -20,6 +20,7 @@ import json
 import shutil
 import argparse
 import subprocess
+import time
 from datetime import datetime, timedelta
 from pathlib import Path
 from dotenv import load_dotenv
@@ -37,13 +38,15 @@ CLAUDE_BIN = shutil.which("claude") or "/home/user/.local/bin/claude"
 
 ANALYSIS_PROMPT = """Ты — аналитик колл-центра туристической компании GoTrips (Беларусь). Туры по России и СНГ.
 Тебе дана расшифровка телефонного разговора с диаризацией (speaker 0, speaker 1).
-Обычно speaker 0 — менеджер (отвечает), speaker 1 — клиент.
+
+ТИП ЗВОНКА: {call_type_ru}
+{call_type_hint}
 
 Ответ СТРОГО только JSON без markdown-блоков и пояснений:
 {
   "direction": "название тура/направления (Питер, Карелия, Дагестан, Мурманск, ...) или null если не упоминалось",
   "quality_score": 3,
-  "outcome": "interested|not_interested|booked|callback|info_only|complaint|wrong_number",
+  "outcome": "interested|not_interested|booked|callback|client_unavailable|info_only|complaint|wrong_number",
   "issues": [],
   "objections": [],
   "manager_highlights": "1-2 предложения об оценке работы менеджера"
@@ -56,6 +59,10 @@ ANALYSIS_PROMPT = """Ты — аналитик колл-центра турис�
 4 — хорошо: выявил потребности, предложил конкретные варианты
 5 — отлично: выявил потребности, обработал возражения, договорился о следующем шаге
 
+ВАЖНО для исходящих звонков: если клиент сказал что занят, недоступен, просит перезвонить —
+это не вина менеджера. Исход = client_unavailable, оценка не ниже 3.
+ВАЖНО: не штрафуй менеджера за "не уточнил детали" если клиент отказался говорить.
+
 Возможные issues: "грубость", "не перезвонил", "долгое ожидание", "не предложил альтернативу",
 "не уточнил даты/количество человек", "бросил трубку", "не взял контакт"
 
@@ -66,6 +73,7 @@ ANALYSIS_PROMPT = """Ты — аналитик колл-центра турис�
 def analyze_call(transcript_data: dict, force: bool = False) -> dict | None:
     public_id = transcript_data.get("public_id")
     transcript = transcript_data.get("transcript", "")
+    call_type = transcript_data.get("call_type", "inbound")
 
     out_file = ANALYSIS_DIR / f"{public_id}.json"
     if out_file.exists() and not force:
@@ -93,43 +101,60 @@ def analyze_call(transcript_data: dict, force: bool = False) -> dict | None:
     else:
         formatted = transcript
 
-    prompt = ANALYSIS_PROMPT.replace("{transcript}", formatted)
+    if call_type == "outbound":
+        call_type_ru = "ИСХОДЯЩИЙ (менеджер звонит клиенту)"
+        call_type_hint = "Speaker 0 = менеджер, Speaker 1 = клиент (менеджер звонит первым)."
+    else:
+        call_type_ru = "ВХОДЯЩИЙ (клиент звонит в компанию)"
+        call_type_hint = "Обычно Speaker 0 = менеджер (отвечает), Speaker 1 = клиент."
 
-    try:
-        proc = subprocess.run(
-            [CLAUDE_BIN, "--print", "--dangerously-skip-permissions", "-p", prompt],
-            capture_output=True, text=True, timeout=120,
-        )
-        raw = proc.stdout.strip() if proc.returncode == 0 else ""
+    prompt = (ANALYSIS_PROMPT
+              .replace("{call_type_ru}", call_type_ru)
+              .replace("{call_type_hint}", call_type_hint)
+              .replace("{transcript}", formatted))
 
-        # Чистим возможный markdown
-        if raw.startswith("```"):
-            raw = raw.split("```")[1]
-            if raw.startswith("json"):
-                raw = raw[4:]
+    for attempt in range(3):
+        try:
+            proc = subprocess.run(
+                [CLAUDE_BIN, "--print", "--dangerously-skip-permissions", "-p", prompt],
+                capture_output=True, text=True, timeout=120,
+            )
+            raw = proc.stdout.strip() if proc.returncode == 0 else ""
 
-        if not raw:
-            raise ValueError("Empty response from Claude")
+            # Чистим возможный markdown
+            if raw.startswith("```"):
+                raw = raw.split("```")[1]
+                if raw.startswith("json"):
+                    raw = raw[4:]
 
-        parsed = json.loads(raw)
-        parsed["public_id"] = public_id
-        out_file.write_text(json.dumps(parsed, ensure_ascii=False, indent=2))
-        return parsed
+            if not raw:
+                raise ValueError(f"Empty response from Claude (exit={proc.returncode})")
 
-    except Exception as e:
-        print(f"[analyze] ERROR {public_id}: {e}")
-        # Сохраняем заглушку чтобы не повторять
-        fallback = {
-            "public_id": public_id,
-            "direction": None,
-            "quality_score": None,
-            "outcome": "unknown",
-            "issues": [],
-            "objections": [],
-            "manager_highlights": f"Анализ не удался: {str(e)[:60]}",
-        }
-        out_file.write_text(json.dumps(fallback, ensure_ascii=False, indent=2))
-        return fallback
+            parsed = json.loads(raw)
+            parsed["public_id"] = public_id
+            out_file.write_text(json.dumps(parsed, ensure_ascii=False, indent=2))
+            return parsed
+
+        except Exception as e:
+            if attempt < 2:
+                wait = (attempt + 1) * 10
+                print(f"[analyze] retry {attempt+1}/2 for {public_id} ({e}), wait {wait}s...", flush=True)
+                time.sleep(wait)
+            else:
+                print(f"[analyze] ERROR {public_id}: {e}")
+                # Сохраняем заглушку только если нет уже рабочего результата
+                if not out_file.exists():
+                    fallback = {
+                        "public_id": public_id,
+                        "direction": None,
+                        "quality_score": None,
+                        "outcome": "unknown",
+                        "issues": [],
+                        "objections": [],
+                        "manager_highlights": f"Анализ не удался: {str(e)[:60]}",
+                    }
+                    out_file.write_text(json.dumps(fallback, ensure_ascii=False, indent=2))
+                return None
 
 
 def analyze_date(date: datetime, force: bool = False) -> list[dict]:
