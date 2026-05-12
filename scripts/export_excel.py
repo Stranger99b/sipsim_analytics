@@ -45,6 +45,7 @@ OUTCOME_RU = {
     "not_interested": "Отказ",
     "complaint": "Жалоба",
     "wrong_number": "Ошибка",
+    "client_unavailable": "Клиент занят",
     "unknown": "—",
     "no_transcript": "Нет транскрипта",
 }
@@ -148,12 +149,15 @@ def export_problem_calls_excel(
         wait = call.get("wait_duration_sec", 0) or 0
 
         score = analysis.get("quality_score")
-        outcome = OUTCOME_RU.get(analysis.get("outcome", ""), "—")
+        raw_outcome = analysis.get("outcome", "")
+        outcome = OUTCOME_RU.get(raw_outcome, "—")
         direction = analysis.get("direction") or "—"
         issues = ", ".join(analysis.get("issues", [])) or "—"
         objections = ", ".join(analysis.get("objections", [])) or "—"
         highlights = analysis.get("manager_highlights", "—")
         transcript_text = build_transcript_text(transcript_data) if transcript_data else "Нет записи"
+        # client_unavailable — клиент сам отказался говорить, менеджер не виноват
+        client_unavailable = raw_outcome == "client_unavailable"
 
         sip_status = call.get("sip_status", "")
         status_ru = {
@@ -179,13 +183,15 @@ def export_problem_calls_excel(
             "highlights": highlights,
             "transcript": transcript_text,
             "_score_num": score or 99,
+            "_client_unavailable": client_unavailable,
         })
 
     if not rows:
         return None
 
     # Сортировка: проблемные сначала (score 1→5→None), потом по времени
-    rows.sort(key=lambda r: (r["_score_num"], r["time"]))
+    # client_unavailable — не проблемный, идёт в конец как нормальный
+    rows.sort(key=lambda r: (99 if r["_client_unavailable"] else r["_score_num"], r["time"]))
 
     # Создаём Excel
     wb = Workbook()
@@ -204,7 +210,7 @@ def export_problem_calls_excel(
     # Статистика в строке 2
     total = len(rows)
     answered = sum(1 for r in rows if r["status"] == "Отвечен")
-    problematic = sum(1 for r in rows if r["_score_num"] <= min_score_threshold)
+    problematic = sum(1 for r in rows if r["_score_num"] <= min_score_threshold and not r["_client_unavailable"])
     ws.merge_cells("A2:N2")
     stats_cell = ws["A2"]
     stats_cell.value = (
@@ -240,7 +246,7 @@ def export_problem_calls_excel(
     for row_idx, r in enumerate(rows, start=4):
         score = r["score"]
         row_fill = _row_fill(score)
-        is_problem = score is not None and score <= min_score_threshold
+        is_problem = score is not None and score <= min_score_threshold and not r["_client_unavailable"]
 
         values = [
             r["time"], r["manager"], r["call_type"], r["status"], r["client"],
@@ -272,7 +278,7 @@ def export_problem_calls_excel(
         ws.row_dimensions[row_idx].height = row_height
 
     # Условный раздел — разделитель между проблемными и нормальными
-    problem_end = sum(1 for r in rows if r["_score_num"] <= min_score_threshold)
+    problem_end = sum(1 for r in rows if r["_score_num"] <= min_score_threshold and not r["_client_unavailable"])
     if 0 < problem_end < len(rows):
         sep_row = 4 + problem_end
         for col_idx in range(1, 15):
