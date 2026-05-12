@@ -211,8 +211,11 @@ def export_problem_calls_excel(
 
     row += 1  # отступ
 
+    # Закрепляем строки 1 и 2 (заголовок + статистика)
+    ws.freeze_panes = "A3"
+
     # ── Карточки ─────────────────────────────────────────────────────────────
-    for r in rows:
+    for call_num, r in enumerate(rows, start=1):
         score = r["score"]
         bg_color, fg_color = SCORE_COLORS.get(score, COLOR_UNKNOWN) if score else COLOR_UNKNOWN
 
@@ -229,33 +232,33 @@ def export_problem_calls_excel(
 
         # ── Строка 1: шапка карточки (цвет по оценке) ────────────────────
         header = (
-            f"  {r['time']}   {r['manager']}   {r['call_type']}   "
+            f"  #{call_num}   {r['time']}   {r['manager']}   {r['call_type']}   "
             f"⏱ {r['duration']}   {stars}   {r['outcome']}   {r['direction']}"
             f"{long_mark}"
         )
         c = ws.cell(row=row, column=1, value=header)
-        c.font      = _font(bold=True, size=11, color=fg_color)
+        c.font      = _font(bold=True, size=12, color=fg_color)
         c.fill      = _fill(bg_color)
         c.alignment = _align(wrap=False, valign="center", halign="left", indent=1)
-        ws.row_dimensions[row].height = 26
+        ws.row_dimensions[row].height = 28
         row += 1
 
         # ── Строка 2: клиент / ожидание / статус ─────────────────────────
         c = ws.cell(row=row, column=1,
                     value=f"  Клиент: {r['client']}   │   Ожидание: {r['wait']}   │   {r['status']}")
-        c.font      = _font(size=9, color="555555")
+        c.font      = _font(size=10, color="555555")
         c.fill      = _fill(COLOR_INFO_BG)
         c.alignment = _align(wrap=False, valign="center", halign="left", indent=1)
-        ws.row_dimensions[row].height = 18
+        ws.row_dimensions[row].height = 20
         row += 1
 
         # ── Строка 3: оценка менеджера от AI ─────────────────────────────
         if highlights:
             c = ws.cell(row=row, column=1, value=f"  🤖  {highlights}")
-            c.font      = _font(size=9, color="1A5276")
+            c.font      = _font(size=11, color="1A5276")
             c.fill      = _fill(COLOR_AI_BG)
             c.alignment = _align(wrap=True, valign="top", halign="left", indent=1)
-            h = max(int(len(highlights) / 130 + 1) * 14, 18)
+            h = max(int(len(highlights) / 125 + 1) * 16, 22)
             ws.row_dimensions[row].height = h
             row += 1
 
