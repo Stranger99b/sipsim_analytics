@@ -97,7 +97,7 @@ def build_transcript_text(transcript_data: dict) -> str:
 def export_problem_calls_excel(
     date: datetime,
     phones_map: dict,
-    min_score_threshold: int = 3,
+    min_score_threshold: int = 2,
     out_path: Path = None,
 ) -> Path | None:
     """
@@ -156,8 +156,8 @@ def export_problem_calls_excel(
         objections = ", ".join(analysis.get("objections", [])) or "—"
         highlights = analysis.get("manager_highlights", "—")
         transcript_text = build_transcript_text(transcript_data) if transcript_data else "Нет записи"
-        # client_unavailable — клиент сам отказался говорить, менеджер не виноват
-        client_unavailable = raw_outcome == "client_unavailable"
+        # client_unavailable / wrong_number — менеджер не виноват
+        client_unavailable = raw_outcome in ("client_unavailable", "wrong_number")
 
         sip_status = call.get("sip_status", "")
         status_ru = {
