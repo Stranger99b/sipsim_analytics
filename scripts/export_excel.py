@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
 """
-Экспорт проблемных звонков в Excel с полным текстом транскрипта.
+Экспорт звонков в Excel в формате карточек.
+Каждый звонок — вертикальный блок строк, транскрипт читается сверху вниз.
 """
 
 import json
 from datetime import datetime
 from pathlib import Path
 from openpyxl import Workbook
-from openpyxl.styles import (
-    Font, PatternFill, Alignment, Border, Side, GradientFill
-)
-from openpyxl.utils import get_column_letter
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
 DATA_DIR = Path(__file__).parent.parent / "data"
 CALLS_DIR = DATA_DIR / "calls"
@@ -20,84 +18,70 @@ REPORTS_DIR = DATA_DIR / "reports"
 
 REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
-# Цветовая схема
-COLOR_RED = "FFCCCC"       # score 1-2
-COLOR_YELLOW = "FFF3CC"    # score 3
-COLOR_GREEN = "CCFFCC"     # score 4-5
-COLOR_HEADER = "2E4057"    # тёмно-синий заголовок
-COLOR_HEADER_FONT = "FFFFFF"
-COLOR_SUBHEADER = "D9E8F5" # светло-голубой подзаголовок
-COLOR_BORDER = "CCCCCC"
-
+# (фон, цвет текста) для каждого score
 SCORE_COLORS = {
-    1: "FF4444",
-    2: "FF8C00",
-    3: "FFD700",
-    4: "5DBB5D",
-    5: "2E8B57",
+    1: ("FF4444", "FFFFFF"),
+    2: ("FF8C00", "FFFFFF"),
+    3: ("FFD700", "333333"),
+    4: ("5DBB5D", "FFFFFF"),
+    5: ("2E8B57", "FFFFFF"),
 }
+COLOR_UNKNOWN    = ("AAAAAA", "FFFFFF")
+COLOR_TITLE_BG   = "2E4057"
+COLOR_STATS_BG   = "D9E8F5"
+COLOR_INFO_BG    = "F5F8FF"
+COLOR_AI_BG      = "EEF6EE"
+COLOR_ISSUES_BG  = "FFF3E0"
+COLOR_TR_HEAD_BG = "E8E8E8"
+COLOR_TR_TEXT_BG = "FAFAFA"
+COLOR_SEPARATOR  = "CCCCCC"
 
-# Порог длинных звонков (секунды)
-LONG_CALL_SEC = 180   # > 3 мин — длинный
-VERY_LONG_CALL_SEC = 300  # > 5 мин — очень длинный
-# Исходы, считающиеся "результатом" для длинного звонка
+LONG_CALL_SEC      = 180   # > 3 мин
+VERY_LONG_CALL_SEC = 300   # > 5 мин
 PRODUCTIVE_OUTCOMES = {"booked", "interested"}
 
 OUTCOME_RU = {
-    "booked": "Бронь",
-    "interested": "Интерес",
-    "callback": "Перезвон",
-    "info_only": "Информация",
-    "not_interested": "Отказ",
-    "complaint": "Жалоба",
-    "wrong_number": "Ошибка",
-    "client_unavailable": "Клиент занят",
-    "unknown": "—",
-    "no_transcript": "Нет транскрипта",
+    "booked":            "Бронь ✅",
+    "interested":        "Интерес",
+    "callback":          "Перезвон",
+    "info_only":         "Информация",
+    "not_interested":    "Отказ",
+    "complaint":         "Жалоба",
+    "wrong_number":      "Ошибка номера",
+    "client_unavailable":"Клиент занят",
+    "unknown":           "—",
+    "no_transcript":     "Нет транскрипта",
 }
 
 
-def _thin_border():
-    side = Side(style="thin", color=COLOR_BORDER)
-    return Border(left=side, right=side, top=side, bottom=side)
+def _fill(hex_color):
+    return PatternFill("solid", fgColor=hex_color)
 
 
-def _header_fill():
-    return PatternFill("solid", fgColor=COLOR_HEADER)
+def _font(bold=False, size=10, color="000000", name="Calibri"):
+    return Font(name=name, size=size, bold=bold, color=color)
 
 
-def _score_fill(score):
-    if score is None:
-        return PatternFill("solid", fgColor="F0F0F0")
-    color = SCORE_COLORS.get(int(score), "FFFFFF")
-    return PatternFill("solid", fgColor=color)
-
-
-def _row_fill(score):
-    if score is None:
-        return None
-    if score <= 2:
-        return PatternFill("solid", fgColor=COLOR_RED)
-    if score == 3:
-        return PatternFill("solid", fgColor=COLOR_YELLOW)
-    return PatternFill("solid", fgColor=COLOR_GREEN)
+def _align(wrap=True, valign="top", halign="left", indent=1):
+    return Alignment(wrap_text=wrap, vertical=valign, horizontal=halign, indent=indent)
 
 
 def build_transcript_text(transcript_data: dict) -> str:
-    """Форматирует транскрипт с диаризацией в читаемый текст."""
     utterances = transcript_data.get("utterances", [])
     if utterances:
         lines = []
         for u in utterances:
-            speaker_num = u.get("speaker", 0)
-            speaker_label = "Менеджер" if speaker_num == 0 else "Клиент"
-            start = u.get("start", 0)
-            minutes = int(start) // 60
-            seconds = int(start) % 60
-            time_str = f"{minutes}:{seconds:02d}"
-            lines.append(f"[{time_str}] {speaker_label}: {u.get('text', '')}")
+            secs = int(u.get("start", 0))
+            m, s = divmod(secs, 60)
+            speaker = "Менеджер" if u.get("speaker", 0) == 0 else "Клиент  "
+            lines.append(f"[{m}:{s:02d}]  {speaker}: {u.get('text', '')}")
         return "\n".join(lines)
     return transcript_data.get("transcript", "")
+
+
+def load_phones_map() -> dict:
+    f = DATA_DIR / "managers.json"
+    return json.loads(f.read_text()) if f.exists() else {}
 
 
 def export_problem_calls_excel(
@@ -106,89 +90,69 @@ def export_problem_calls_excel(
     min_score_threshold: int = 2,
     out_path: Path = None,
 ) -> Path | None:
-    """
-    Создаёт Excel со всеми проанализированными звонками, сортируя проблемные наверх.
-    min_score_threshold: звонки с оценкой <= этого значения считаются проблемными.
-    """
     calls_file = CALLS_DIR / f"{date.strftime('%Y-%m-%d')}.json"
     if not calls_file.exists():
         return None
 
     calls = json.loads(calls_file.read_text())
-    calls_by_id = {c.get("public_id"): c for c in calls}
-
-    # Собираем все звонки с анализом
     rows = []
+
     for call in calls:
         pid = call.get("public_id")
-        analysis_file = ANALYSIS_DIR / f"{pid}.json"
-        transcript_file = TRANSCRIPTS_DIR / f"{pid}.json"
+        af = ANALYSIS_DIR / f"{pid}.json"
+        tf = TRANSCRIPTS_DIR / f"{pid}.json"
 
-        analysis = json.loads(analysis_file.read_text()) if analysis_file.exists() else {}
-        transcript_data = json.loads(transcript_file.read_text()) if transcript_file.exists() else {}
+        analysis       = json.loads(af.read_text()) if af.exists() else {}
+        transcript_data = json.loads(tf.read_text()) if tf.exists() else {}
 
-        # Определяем менеджера
         call_type = call.get("call_type", "")
         if call_type == "outbound":
             manager_num = call.get("caller_number", "")
+            client_num  = call.get("target_number", "")
         else:
             manager_num = call.get("answered_phone_number") or call.get("caller_number", "")
+            client_num  = call.get("caller_number", "")
+
         manager_name = phones_map.get(manager_num, manager_num or "—")
 
-        # Клиент
-        if call_type == "outbound":
-            client_num = call.get("target_number", "")
-        else:
-            client_num = call.get("caller_number", "")
-
-        # Время
         start_raw = call.get("start_time") or call.get("registration_time") or ""
         try:
             start_dt = datetime.fromisoformat(start_raw.replace("Z", "+00:00"))
-            time_str = start_dt.strftime("%H:%M:%S")
+            time_str = start_dt.strftime("%H:%M")
         except Exception:
-            time_str = start_raw[:19] if start_raw else "—"
+            time_str = start_raw[:16] if start_raw else "—"
 
-        dur = call.get("duration_sec", 0) or 0
+        dur  = call.get("duration_sec", 0) or 0
+        wait = call.get("wait_duration_sec", 0) or 0
         dur_str = f"{dur // 60}:{dur % 60:02d}"
 
-        wait = call.get("wait_duration_sec", 0) or 0
-
-        score = analysis.get("quality_score")
+        score       = analysis.get("quality_score")
         raw_outcome = analysis.get("outcome", "")
-        outcome = OUTCOME_RU.get(raw_outcome, "—")
-        direction = analysis.get("direction") or "—"
-        issues = ", ".join(analysis.get("issues", [])) or "—"
-        objections = ", ".join(analysis.get("objections", [])) or "—"
-        highlights = analysis.get("manager_highlights", "—")
+        outcome     = OUTCOME_RU.get(raw_outcome, "—")
+        direction   = analysis.get("direction") or "—"
+        issues      = ", ".join(analysis.get("issues", []))
+        highlights  = analysis.get("manager_highlights", "") or ""
         transcript_text = build_transcript_text(transcript_data) if transcript_data else "Нет записи"
-        # client_unavailable / wrong_number — менеджер не виноват
+
+        sip = call.get("sip_status", "")
+        status_ru = {"answer": "Отвечен", "no_answer": "Не отвечен",
+                     "cancel": "Отменён",  "busy": "Занято"}.get(sip, sip)
+
         client_unavailable = raw_outcome in ("client_unavailable", "wrong_number")
+        long_no_result = (
+            dur >= LONG_CALL_SEC
+            and raw_outcome not in PRODUCTIVE_OUTCOMES
+            and not client_unavailable
+        )
 
-        sip_status = call.get("sip_status", "")
-        status_ru = {
-            "answer": "Отвечен",
-            "no_answer": "Не отвечен",
-            "cancel": "Отменён",
-            "busy": "Занято",
-        }.get(sip_status, sip_status)
-
-        long_no_result = dur >= LONG_CALL_SEC and raw_outcome not in PRODUCTIVE_OUTCOMES and not client_unavailable
         rows.append({
-            "time": time_str,
-            "manager": manager_name,
-            "call_type": "Входящий" if call_type == "inbound" else "Исходящий",
-            "status": status_ru,
-            "client": client_num,
-            "duration": dur_str,
-            "wait": f"{wait}с",
-            "score": score,
-            "outcome": outcome,
-            "direction": direction,
-            "issues": issues,
-            "objections": objections,
-            "highlights": highlights,
-            "transcript": transcript_text,
+            "time": time_str, "manager": manager_name,
+            "call_type": "Вход." if call_type == "inbound" else "Исход.",
+            "status": status_ru, "client": client_num,
+            "duration": dur_str, "wait": f"{wait}с",
+            "score": score, "outcome": outcome,
+            "direction": direction, "issues": issues,
+            "highlights": highlights, "transcript": transcript_text,
             "_score_num": score or 99,
             "_client_unavailable": client_unavailable,
             "_dur_sec": dur,
@@ -198,128 +162,163 @@ def export_problem_calls_excel(
     if not rows:
         return None
 
-    # Сортировка: проблемные сначала (score 1→5→None), потом по времени
-    # client_unavailable — не проблемный, идёт в конец как нормальный
-    rows.sort(key=lambda r: (99 if r["_client_unavailable"] else r["_score_num"], r["time"]))
+    # Сортировка: проблемные → длинные без результата → остальные; внутри — по времени
+    def _sort_key(r):
+        if r["_score_num"] <= min_score_threshold and not r["_client_unavailable"]:
+            g = 0
+        elif r["_long_no_result"]:
+            g = 1
+        else:
+            g = 2
+        return (g, r["time"])
 
-    # Создаём Excel
+    rows.sort(key=_sort_key)
+
+    total          = len(rows)
+    answered       = sum(1 for r in rows if r["status"] == "Отвечен")
+    problematic    = sum(1 for r in rows if r["_score_num"] <= min_score_threshold and not r["_client_unavailable"])
+    long_no_result = sum(1 for r in rows if r["_long_no_result"])
+
+    # ── Excel ────────────────────────────────────────────────────────────────
     wb = Workbook()
     ws = wb.active
     ws.title = f"Звонки {date.strftime('%d.%m.%Y')}"
+    ws.sheet_view.showGridLines = False
+    ws.column_dimensions["A"].width = 145
 
-    # --- Заголовок файла ---
-    ws.merge_cells("A1:N1")
-    title_cell = ws["A1"]
-    title_cell.value = f"📞 Аналитика звонков GoTrips — {date.strftime('%d.%m.%Y')}"
-    title_cell.font = Font(name="Calibri", size=14, bold=True, color=COLOR_HEADER_FONT)
-    title_cell.fill = _header_fill()
-    title_cell.alignment = Alignment(horizontal="center", vertical="center")
-    ws.row_dimensions[1].height = 30
+    row = 1
 
-    # Статистика в строке 2
-    total = len(rows)
-    answered = sum(1 for r in rows if r["status"] == "Отвечен")
-    problematic = sum(1 for r in rows if r["_score_num"] <= min_score_threshold and not r["_client_unavailable"])
-    long_no_result = sum(1 for r in rows if r["_long_no_result"])
-    ws.merge_cells("A2:N2")
-    stats_cell = ws["A2"]
-    stats_cell.value = (
-        f"Всего: {total}  |  Отвечено: {answered}  |  "
-        f"Проблемных (оценка ≤{min_score_threshold}): {problematic}  |  "
-        f"Длинных без результата (>3 мин): {long_no_result}  |  "
-        f"Транскрипт в столбце N"
-    )
-    stats_cell.font = Font(name="Calibri", size=10, italic=True, color="555555")
-    stats_cell.fill = PatternFill("solid", fgColor=COLOR_SUBHEADER)
-    stats_cell.alignment = Alignment(horizontal="left", vertical="center", indent=1)
-    ws.row_dimensions[2].height = 20
+    # Заголовок
+    c = ws.cell(row=row, column=1,
+                value=f"📞 Аналитика звонков GoTrips — {date.strftime('%d.%m.%Y')}")
+    c.font      = _font(bold=True, size=14, color="FFFFFF")
+    c.fill      = _fill(COLOR_TITLE_BG)
+    c.alignment = _align(wrap=False, valign="center", halign="center", indent=0)
+    ws.row_dimensions[row].height = 34
+    row += 1
 
-    # --- Шапка таблицы ---
-    headers = [
-        "Время", "Менеджер", "Тип", "Статус", "Клиент",
-        "Длит.", "Ожидание", "Оценка AI", "Исход", "Направление",
-        "Проблемы", "Возражения клиента", "Оценка менеджера (AI)", "Транскрипт"
-    ]
-    col_widths = [10, 22, 12, 12, 18, 9, 10, 10, 14, 20, 35, 35, 45, 80]
+    # Статистика
+    c = ws.cell(row=row, column=1, value=(
+        f"Всего: {total}  │  Отвечено: {answered}  │  "
+        f"Проблемных (score ≤{min_score_threshold}): {problematic}  │  "
+        f"⚡ Длинных без результата (>3 мин): {long_no_result}"
+    ))
+    c.font      = _font(size=10, color="444444")
+    c.fill      = _fill(COLOR_STATS_BG)
+    c.alignment = _align(wrap=False, valign="center", halign="center", indent=0)
+    ws.row_dimensions[row].height = 22
+    row += 1
 
-    for col_idx, (h, w) in enumerate(zip(headers, col_widths), start=1):
-        cell = ws.cell(row=3, column=col_idx, value=h)
-        cell.font = Font(name="Calibri", size=10, bold=True, color=COLOR_HEADER_FONT)
-        cell.fill = _header_fill()
-        cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
-        cell.border = _thin_border()
-        ws.column_dimensions[get_column_letter(col_idx)].width = w
+    row += 1  # отступ
 
-    ws.row_dimensions[3].height = 22
-    ws.freeze_panes = "A4"
-
-    # --- Строки данных ---
-    for row_idx, r in enumerate(rows, start=4):
+    # ── Карточки ─────────────────────────────────────────────────────────────
+    for r in rows:
         score = r["score"]
-        row_fill = _row_fill(score)
-        is_problem = score is not None and score <= min_score_threshold and not r["_client_unavailable"]
+        bg_color, fg_color = SCORE_COLORS.get(score, COLOR_UNKNOWN) if score else COLOR_UNKNOWN
 
-        dur_sec = r["_dur_sec"]
-        long_no_result = r["_long_no_result"]
-        # Исход: добавляем маркер если длинный без результата
-        outcome_val = r["outcome"]
-        if long_no_result:
-            outcome_val = f"⚡ {outcome_val}"
+        # Звёзды оценки
+        stars = ("★" * score + "☆" * (5 - score)) if score else "—"
 
-        values = [
-            r["time"], r["manager"], r["call_type"], r["status"], r["client"],
-            r["duration"], r["wait"], score if score else "—",
-            outcome_val, r["direction"],
-            r["issues"], r["objections"], r["highlights"], r["transcript"],
-        ]
+        # Маркер длинного звонка
+        if r["_dur_sec"] >= VERY_LONG_CALL_SEC and r["_long_no_result"]:
+            long_mark = "   ⚡🔴 ДЛИННЫЙ БЕЗ РЕЗУЛЬТАТА"
+        elif r["_long_no_result"]:
+            long_mark = "   ⚡ Длинный без результата"
+        else:
+            long_mark = ""
 
-        for col_idx, val in enumerate(values, start=1):
-            cell = ws.cell(row=row_idx, column=col_idx, value=val)
-            cell.font = Font(name="Calibri", size=9)
-            cell.border = _thin_border()
-            cell.alignment = Alignment(
-                vertical="top",
-                wrap_text=True,
-                horizontal="center" if col_idx <= 8 else "left",
-            )
+        # ── Строка 1: шапка карточки (цвет по оценке) ────────────────────
+        header = (
+            f"  {r['time']}   {r['manager']}   {r['call_type']}   "
+            f"⏱ {r['duration']}   {stars}   {r['outcome']}   {r['direction']}"
+            f"{long_mark}"
+        )
+        c = ws.cell(row=row, column=1, value=header)
+        c.font      = _font(bold=True, size=11, color=fg_color)
+        c.fill      = _fill(bg_color)
+        c.alignment = _align(wrap=False, valign="center", halign="left", indent=1)
+        ws.row_dimensions[row].height = 26
+        row += 1
 
-            # Оценка — своя заливка
-            if col_idx == 8 and score is not None:
-                cell.fill = _score_fill(score)
-                cell.font = Font(name="Calibri", size=10, bold=True, color="FFFFFF")
-            # Длительность — подсветка длинных звонков
-            elif col_idx == 6:
-                if dur_sec >= VERY_LONG_CALL_SEC:
-                    cell.fill = PatternFill("solid", fgColor="FFAA44")  # оранжевый > 5 мин
-                    cell.font = Font(name="Calibri", size=9, bold=True)
-                elif dur_sec >= LONG_CALL_SEC:
-                    cell.fill = PatternFill("solid", fgColor="FFF0B0")  # светло-жёлтый > 3 мин
-            elif row_fill and is_problem:
-                cell.fill = row_fill
+        # ── Строка 2: клиент / ожидание / статус ─────────────────────────
+        c = ws.cell(row=row, column=1,
+                    value=f"  Клиент: {r['client']}   │   Ожидание: {r['wait']}   │   {r['status']}")
+        c.font      = _font(size=9, color="555555")
+        c.fill      = _fill(COLOR_INFO_BG)
+        c.alignment = _align(wrap=False, valign="center", halign="left", indent=1)
+        ws.row_dimensions[row].height = 18
+        row += 1
 
-        # Высота строки: зависит от длины транскрипта
-        transcript_lines = r["transcript"].count("\n") + 1
-        row_height = min(max(transcript_lines * 13, 30), 400)
-        ws.row_dimensions[row_idx].height = row_height
+        # ── Строка 3: оценка менеджера от AI ─────────────────────────────
+        if highlights:
+            c = ws.cell(row=row, column=1, value=f"  🤖  {highlights}")
+            c.font      = _font(size=9, color="1A5276")
+            c.fill      = _fill(COLOR_AI_BG)
+            c.alignment = _align(wrap=True, valign="top", halign="left", indent=1)
+            h = max(int(len(highlights) / 130 + 1) * 14, 18)
+            ws.row_dimensions[row].height = h
+            row += 1
 
-    # Условный раздел — разделитель между проблемными и нормальными
-    problem_end = sum(1 for r in rows if r["_score_num"] <= min_score_threshold and not r["_client_unavailable"])
-    if 0 < problem_end < len(rows):
-        sep_row = 4 + problem_end
-        for col_idx in range(1, 15):
-            ws.cell(row=sep_row, column=col_idx).border = Border(
-                top=Side(style="medium", color="FF4444"),
-                left=_thin_border().left,
-                right=_thin_border().right,
-                bottom=_thin_border().bottom,
-            )
+        # ── Строка 4: проблемы (если есть) ───────────────────────────────
+        if r["issues"]:
+            c = ws.cell(row=row, column=1, value=f"  ⚠️   {r['issues']}")
+            c.font      = _font(size=9, color="8B4513", bold=True)
+            c.fill      = _fill(COLOR_ISSUES_BG)
+            c.alignment = _align(wrap=True, valign="top", halign="left", indent=1)
+            ws.row_dimensions[row].height = 18
+            row += 1
 
-    # Автофильтр
-    ws.auto_filter.ref = f"A3:N{3 + len(rows)}"
+        # ── Строка 5: заголовок транскрипта ──────────────────────────────
+        c = ws.cell(row=row, column=1, value="  📝  ТРАНСКРИПТ")
+        c.font      = _font(size=9, bold=True, color="444444")
+        c.fill      = _fill(COLOR_TR_HEAD_BG)
+        c.alignment = _align(wrap=False, valign="center", halign="left", indent=1)
+        ws.row_dimensions[row].height = 16
+        row += 1
 
-    # Сохраняем
+        # ── Строка 6+: текст транскрипта ──────────────────────────────────
+        transcript = r["transcript"]
+        c = ws.cell(row=row, column=1, value=transcript)
+        c.font      = Font(name="Courier New", size=9, color="222222")
+        c.fill      = _fill(COLOR_TR_TEXT_BG)
+        c.alignment = Alignment(wrap_text=True, vertical="top", horizontal="left", indent=2)
+        lines = transcript.count("\n") + 1
+        ws.row_dimensions[row].height = min(lines * 14, 500)
+        row += 1
+
+        # ── Разделитель ───────────────────────────────────────────────────
+        c = ws.cell(row=row, column=1, value="")
+        c.border = Border(bottom=Side(style="medium", color=COLOR_SEPARATOR))
+        ws.row_dimensions[row].height = 10
+        row += 1
+
     if out_path is None:
         out_path = REPORTS_DIR / f"calls_{date.strftime('%Y-%m-%d')}.xlsx"
 
     wb.save(str(out_path))
     return out_path
+
+
+def main():
+    import argparse
+    from datetime import timedelta
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--date", help="YYYY-MM-DD (default: yesterday)")
+    args = parser.parse_args()
+
+    target_date = (
+        datetime.strptime(args.date, "%Y-%m-%d") if args.date
+        else datetime.now() - timedelta(days=1)
+    )
+
+    phones = load_phones_map()
+    out = export_problem_calls_excel(target_date, phones)
+    if out:
+        print(f"[export] Saved: {out}")
+    else:
+        print("[export] No data")
+
+
+if __name__ == "__main__":
+    main()
