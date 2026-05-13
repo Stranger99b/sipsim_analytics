@@ -122,11 +122,13 @@ SCORE_MEDALS = ["🥇", "🥈", "🥉"]
 
 
 def compute_manager_score(s: dict) -> dict:
-    """100-балльный скоринг: качество(60) + ответы(15) + ожидание(15) + длительность(10)."""
-    # 1. Качество AI (60)
+    """100-балльный скоринг: качество(70) + ответы(15) + ожидание(15).
+    Длительность — только информационно, не влияет на баллы.
+    """
+    # 1. Качество AI (70) — главный критерий
     if s["quality_scores"]:
         avg_q = sum(s["quality_scores"]) / len(s["quality_scores"])
-        q_pts = round(avg_q / 5 * 60)
+        q_pts = round(avg_q / 5 * 70)
     else:
         avg_q = None
         q_pts = 0
@@ -150,29 +152,15 @@ def compute_manager_score(s: dict) -> dict:
         else:
             w_pts = 3
     else:
+        avg_wait = None
         w_pts = 8  # нет данных — нейтрально
 
-    # 4. Средняя длительность — 60-300с оптимально (10)
-    if s["durations"]:
-        avg_dur = sum(s["durations"]) / len(s["durations"])
-        if 60 <= avg_dur <= 300:
-            d_pts = 10
-        elif avg_dur < 60:
-            d_pts = 4
-        elif avg_dur <= 480:
-            d_pts = 7
-        else:
-            d_pts = 5
-    else:
-        avg_dur = None
-        d_pts = 5
-
-    total_score = q_pts + a_pts + w_pts + d_pts
+    total_score = q_pts + a_pts + w_pts
     return {
         "total": total_score,
-        "q_pts": q_pts, "a_pts": a_pts, "w_pts": w_pts, "d_pts": d_pts,
+        "q_pts": q_pts, "a_pts": a_pts, "w_pts": w_pts,
         "avg_quality": avg_q,
-        "avg_wait": (sum(s["wait_times"]) / len(s["wait_times"])) if s["wait_times"] else None,
+        "avg_wait": avg_wait if s["wait_times"] else None,
         "avg_dur": (sum(s["durations"]) / len(s["durations"])) if s["durations"] else None,
     }
 
@@ -219,10 +207,10 @@ def format_manager_scorecard(stats: dict, period_label: str) -> str:
         lines.append(
             f"\n{medal} <b>{manager}</b> — {level} <b>{total}/100</b>{suffix}\n"
             f"   {bar}\n"
-            f"   ⭐ Качество: {avg_q} ({sc['q_pts']}/60)  "
+            f"   ⭐ Качество: {avg_q} ({sc['q_pts']}/70)  "
             f"📞 Ответы: {s['answered']}/{s['total']} {answer_rate}% ({sc['a_pts']}/15)\n"
             f"   ⏱ Ожидание: {avg_wait} ({sc['w_pts']}/15)  "
-            f"🕐 Длит: {avg_dur} ({sc['d_pts']}/10)"
+            f"🕐 Ср.длит: {avg_dur}"
         )
 
         missed = s["missed"]
