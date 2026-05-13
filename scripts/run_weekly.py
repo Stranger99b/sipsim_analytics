@@ -22,7 +22,7 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).parent.parent / ".env")
 sys.path.insert(0, str(Path(__file__).parent))
 
-from manager_stats import get_weekly_manager_block, format_manager_scorecard, load_phones_map, compute_stats, load_analyses_for_date
+from manager_stats import get_weekly_manager_block, format_manager_scorecard, compute_callback_recovery, load_phones_map, compute_stats, load_analyses_for_date
 from direction_stats import get_weekly_direction_block
 from send_telegram import send_message
 
@@ -161,20 +161,20 @@ def main():
         f"<b>📊 ЕЖЕНЕДЕЛЬНЫЙ ОТЧЁТ ЗВОНКОВ: {period}</b>\n\n"
         f"Всего звонков: {data['total_calls']}\n"
         f"Отвечено: {data['answered']} ({data['answer_rate_pct']}%)\n"
-        f"Пропущено: {data['missed']}\n"
         f"Проанализировано: {data['analyzed_calls']}"
     )
     if data.get("avg_quality"):
-        header += f"\nСр. качество: {data['avg_quality']}/5"
+        header += f"\nСр. качество вход. зв.: {data['avg_quality']}/5"
 
     # Блоки
     manager_block = get_weekly_manager_block(end_date)
     direction_block = get_weekly_direction_block(end_date)
 
-    # Скоркард менеджеров
+    # Скоркард менеджеров + статистика пропущенных
     all_calls = []
     all_analyses = {}
     phones_map = load_phones_map()
+    recovery_total = {"missed_inbound": 0, "recovered": 0, "truly_lost": 0, "outbound_unanswered": 0}
     for i in range(7):
         d = end_date - timedelta(days=i)
         f = CALLS_DIR / f"{d.strftime('%Y-%m-%d')}.json"
@@ -182,13 +182,28 @@ def main():
             day_calls = json.loads(f.read_text())
             all_calls.extend(day_calls)
             all_analyses.update(load_analyses_for_date(d))
+            dr = compute_callback_recovery(day_calls)
+            for k in recovery_total:
+                recovery_total[k] += dr[k]
+
     weekly_stats = compute_stats(all_calls, all_analyses, phones_map)
     scorecard_block = format_manager_scorecard(weekly_stats, data["period"])
+
+    # Блок пропущенных звонков
+    r = recovery_total
+    recovery_block = (
+        f"<b>📵 ПРОПУЩЕННЫЕ ЗВОНКИ</b>\n"
+        f"Входящих пропущено: {r['missed_inbound']}\n"
+        f"  ✅ Перезвонили в тот же день: {r['recovered']}\n"
+        f"  ❌ Не перезвонили (потеря): {r['truly_lost']}\n"
+        f"Исходящих не дозвонились: {r['outbound_unanswered']} "
+        f"(сервисные, в рейтинг не входят)"
+    )
 
     print("[run_weekly] Requesting AI analysis...")
     ai_block = build_ai_block(data)
 
-    full_report = "\n\n".join(filter(None, [header, scorecard_block, manager_block, direction_block, ai_block]))
+    full_report = "\n\n".join(filter(None, [header, recovery_block, scorecard_block, manager_block, direction_block, ai_block]))
 
     send_message(full_report, parse_mode="HTML")
     print("[run_weekly] Done!")

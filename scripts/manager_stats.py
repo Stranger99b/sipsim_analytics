@@ -55,34 +55,82 @@ def get_manager_name(call: dict, phones_map: dict) -> str | None:
     return phones_map.get(num)  # None если не менеджер
 
 
+PRODUCTIVE_OUTBOUND = {"booked", "interested"}
+
+
+def compute_callback_recovery(calls: list) -> dict:
+    """Анализирует пропущенные входящие и восстановленные перезвоном в тот же день."""
+    outbound_answered_targets = set()
+    for c in calls:
+        if c.get("call_type") == "outbound" and c.get("sip_status") == "answer":
+            t = c.get("target_number") or c.get("answered_phone_number")
+            if t:
+                outbound_answered_targets.add(t)
+
+    missed_inbound = recovered = truly_lost = outbound_unanswered = 0
+    for c in calls:
+        status = c.get("sip_status")
+        if status not in ("no_answer", "cancel"):
+            continue
+        if c.get("call_type") == "inbound":
+            missed_inbound += 1
+            if c.get("caller_number") in outbound_answered_targets:
+                recovered += 1
+            else:
+                truly_lost += 1
+        else:
+            outbound_unanswered += 1
+
+    return {
+        "missed_inbound": missed_inbound,
+        "recovered": recovered,
+        "truly_lost": truly_lost,
+        "outbound_unanswered": outbound_unanswered,
+    }
+
+
 def compute_stats(calls: list, analyses: dict, phones_map: dict) -> dict:
     """
     analyses: {public_id: analysis_dict}
     Возвращает {manager_name: stats_dict}
+    Рейтинг строится только по входящим звонкам.
+    Исходящие с продуктивным исходом (booked/interested) учитываются в качестве.
     """
     stats = defaultdict(lambda: {
+        # Общие счётчики (для информации)
         "total": 0,
         "answered": 0,
         "missed": 0,
         "busy": 0,
         "inbound": 0,
         "outbound": 0,
-        "wait_times": [],
         "durations": [],
-        "quality_scores": [],
         "outcomes": defaultdict(int),
         "issues": [],
         "directions": defaultdict(int),
+        # Для рейтинга — только входящие
+        "inbound_total": 0,
+        "inbound_answered": 0,
+        "inbound_wait_times": [],
+        "inbound_quality_scores": [],
+        # Исходящие с результатом (доп. вклад в качество)
+        "outbound_productive_scores": [],
+        # Совместимость
+        "wait_times": [],
+        "quality_scores": [],
     })
 
     for call in calls:
         manager = get_manager_name(call, phones_map)
         if not manager:
-            continue  # пропускаем звонки без идентифицированного менеджера
+            continue
         s = stats[manager]
         s["total"] += 1
 
         status = call.get("sip_status", "")
+        call_type = call.get("call_type", "")
+        is_inbound = call_type == "inbound"
+
         if status == "answer":
             s["answered"] += 1
         elif status in ("no_answer", "cancel"):
@@ -90,14 +138,17 @@ def compute_stats(calls: list, analyses: dict, phones_map: dict) -> dict:
         elif status == "busy":
             s["busy"] += 1
 
-        if call.get("call_type") == "inbound":
+        if is_inbound:
             s["inbound"] += 1
+            s["inbound_total"] += 1
+            if status == "answer":
+                s["inbound_answered"] += 1
+                wait = call.get("wait_duration_sec")
+                if wait is not None:
+                    s["inbound_wait_times"].append(int(wait))
+                    s["wait_times"].append(int(wait))
         else:
             s["outbound"] += 1
-
-        wait = call.get("wait_duration_sec")
-        if wait is not None and status == "answer":
-            s["wait_times"].append(int(wait))
 
         dur = call.get("duration_sec")
         if dur and status == "answer":
@@ -107,8 +158,6 @@ def compute_stats(calls: list, analyses: dict, phones_map: dict) -> dict:
         if pid and pid in analyses:
             a = analyses[pid]
             score = a.get("quality_score")
-            if score:
-                s["quality_scores"].append(score)
             outcome = a.get("outcome")
             if outcome:
                 s["outcomes"][outcome] += 1
@@ -117,6 +166,12 @@ def compute_stats(calls: list, analyses: dict, phones_map: dict) -> dict:
             direction = a.get("direction")
             if direction:
                 s["directions"][direction] += 1
+            if score:
+                s["quality_scores"].append(score)
+                if is_inbound:
+                    s["inbound_quality_scores"].append(score)
+                elif outcome in PRODUCTIVE_OUTBOUND:
+                    s["outbound_productive_scores"].append(score)
 
     return dict(stats)
 
@@ -127,25 +182,29 @@ SCORE_MEDALS = ["🥇", "🥈", "🥉"]
 
 
 def compute_manager_score(s: dict) -> dict:
-    """100-балльный скоринг: качество(70) + ответы(15) + ожидание(15).
-    Длительность — только информационно, не влияет на баллы.
+    """100-балльный скоринг по входящим звонкам:
+    качество(70) + ответы на входящие(15) + ожидание входящих(15).
+    Исходящие сервисные звонки в рейтинг не входят.
+    Исходящие с продуктивным исходом (booked/interested) добавляют балл в качество.
     """
-    # 1. Качество AI (70) — главный критерий
-    if s["quality_scores"]:
-        avg_q = sum(s["quality_scores"]) / len(s["quality_scores"])
+    # 1. Качество AI (70): входящие + исходящие с результатом
+    q_scores = s["inbound_quality_scores"] + s["outbound_productive_scores"]
+    if q_scores:
+        avg_q = sum(q_scores) / len(q_scores)
         q_pts = round(avg_q / 5 * 70)
     else:
         avg_q = None
         q_pts = 0
 
-    # 2. Доступность — answer rate (15)
-    total = s["total"]
-    answered = s["answered"]
-    a_pts = round((answered / total) * 15) if total else 0
+    # 2. Доступность — только входящие (15)
+    inb_total = s["inbound_total"]
+    inb_answered = s["inbound_answered"]
+    a_pts = round((inb_answered / inb_total) * 15) if inb_total else 0
 
-    # 3. Время ожидания — меньше лучше (15)
-    if s["wait_times"]:
-        avg_wait = sum(s["wait_times"]) / len(s["wait_times"])
+    # 3. Время ожидания — только входящие (15)
+    wait_times = s["inbound_wait_times"]
+    if wait_times:
+        avg_wait = sum(wait_times) / len(wait_times)
         if avg_wait <= 15:
             w_pts = 15
         elif avg_wait <= 25:
@@ -158,15 +217,18 @@ def compute_manager_score(s: dict) -> dict:
             w_pts = 3
     else:
         avg_wait = None
-        w_pts = 8  # нет данных — нейтрально
+        w_pts = 8
 
     total_score = q_pts + a_pts + w_pts
     return {
         "total": total_score,
         "q_pts": q_pts, "a_pts": a_pts, "w_pts": w_pts,
         "avg_quality": avg_q,
-        "avg_wait": avg_wait if s["wait_times"] else None,
+        "avg_wait": avg_wait,
         "avg_dur": (sum(s["durations"]) / len(s["durations"])) if s["durations"] else None,
+        "inbound_total": inb_total,
+        "inbound_answered": inb_answered,
+        "outbound_productive": len(s["outbound_productive_scores"]),
     }
 
 
@@ -194,7 +256,10 @@ def format_manager_scorecard(stats: dict, period_label: str) -> str:
         avg_wait = f"{round(sc['avg_wait'])}с" if sc["avg_wait"] else "—"
         avg_dur_sec = sc["avg_dur"]
         avg_dur = f"{int(avg_dur_sec)//60}:{int(avg_dur_sec)%60:02d}" if avg_dur_sec else "—"
-        answer_rate = round(s["answered"] / s["total"] * 100) if s["total"] else 0
+        inb_total = sc["inbound_total"]
+        inb_ans = sc["inbound_answered"]
+        inb_rate = round(inb_ans / inb_total * 100) if inb_total else 0
+        outb_prod = sc["outbound_productive"]
 
         if total >= 80:
             level = "🟢"
@@ -209,18 +274,19 @@ def format_manager_scorecard(stats: dict, period_label: str) -> str:
         elif rank == len(scored) - 1 and len(scored) > 1:
             suffix = " ← требует внимания"
 
+        outb_str = f"  📤 Исх.продажи: {outb_prod}" if outb_prod else ""
         lines.append(
             f"\n{medal} <b>{manager}</b> — {level} <b>{total}/100</b>{suffix}\n"
             f"   {bar}\n"
-            f"   ⭐ Качество: {avg_q} ({sc['q_pts']}/70)  "
-            f"📞 Ответы: {s['answered']}/{s['total']} {answer_rate}% ({sc['a_pts']}/15)\n"
+            f"   ⭐ Качество вход.: {avg_q} ({sc['q_pts']}/70)  "
+            f"📞 Вход.: {inb_ans}/{inb_total} {inb_rate}% ({sc['a_pts']}/15)\n"
             f"   ⏱ Ожидание: {avg_wait} ({sc['w_pts']}/15)  "
-            f"🕐 Ср.длит: {avg_dur}"
+            f"🕐 Ср.длит: {avg_dur}{outb_str}"
         )
 
-        missed = s["missed"]
-        if missed > 0:
-            lines.append(f"   ⚠️ Пропущено: {missed} зв.")
+        inb_missed = inb_total - inb_ans
+        if inb_missed > 0:
+            lines.append(f"   ⚠️ Пропущено вход.: {inb_missed} зв.")
 
     return "\n".join(lines)
 
