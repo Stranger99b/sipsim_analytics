@@ -42,14 +42,17 @@ def load_phones_map() -> dict:
     return mapping
 
 
-def get_manager_name(call: dict, phones_map: dict) -> str:
-    """Определяет менеджера: для исходящих — caller_number, для входящих — answered_phone_number."""
+def get_manager_name(call: dict, phones_map: dict) -> str | None:
+    """Определяет менеджера по номеру телефона из phones_map.
+    Возвращает None если номер не найден в phones_map — такие звонки не учитываются в статистике менеджеров.
+    Для входящих пропущенных (answered_phone_number пуст) вернёт None, т.к. неизвестно кто должен был ответить.
+    """
     call_type = call.get("call_type", "")
     if call_type == "outbound":
         num = call.get("caller_number", "")
     else:
-        num = call.get("answered_phone_number") or call.get("caller_number", "")
-    return phones_map.get(num, num or "Неизвестный")
+        num = call.get("answered_phone_number") or ""
+    return phones_map.get(num)  # None если не менеджер
 
 
 def compute_stats(calls: list, analyses: dict, phones_map: dict) -> dict:
@@ -74,6 +77,8 @@ def compute_stats(calls: list, analyses: dict, phones_map: dict) -> dict:
 
     for call in calls:
         manager = get_manager_name(call, phones_map)
+        if not manager:
+            continue  # пропускаем звонки без идентифицированного менеджера
         s = stats[manager]
         s["total"] += 1
 
