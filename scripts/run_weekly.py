@@ -115,6 +115,78 @@ def collect_weekly_data(end_date: datetime) -> dict:
     }
 
 
+_SCORE_EMOJI = {1: "🔴", 2: "🟠", 3: "🟡", 4: "🟢", 5: "💚"}
+_OUTCOME_RU_AGENT = {
+    "booked": "Бронь ✅", "interested": "Интерес", "callback": "Перезвон",
+    "info_only": "Информация", "not_interested": "Отказ", "complaint": "Жалоба",
+}
+
+
+def build_weekly_agent_block(end_date: datetime) -> str:
+    phones_map = load_phones_map()
+    agent_calls = []
+
+    for i in range(7):
+        d = end_date - timedelta(days=i)
+        f = CALLS_DIR / f"{d.strftime('%Y-%m-%d')}.json"
+        if not f.exists():
+            continue
+        calls = json.loads(f.read_text())
+        for call in calls:
+            pid = call.get("public_id")
+            af = ANALYSIS_DIR / f"{pid}.json"
+            if af and af.exists():
+                a = json.loads(af.read_text())
+                if a.get("is_agent"):
+                    agent_calls.append((call, a))
+
+    if not agent_calls:
+        return ""
+
+    total = len(agent_calls)
+    answered = sum(1 for call, _ in agent_calls if call.get("sip_status") == "answer")
+    scores = [a.get("quality_score") for _, a in agent_calls if a.get("quality_score")]
+    avg_score = round(sum(scores) / len(scores), 1) if scores else None
+
+    start_date = end_date - timedelta(days=6)
+    label = f"{start_date.strftime('%d.%m')}–{end_date.strftime('%d.%m.%Y')}"
+
+    summary_line = f"Всего: {total}  |  Отвечено: {answered}"
+    if avg_score:
+        summary_line += f"  |  Ср. оценка: {avg_score}/5"
+
+    lines = [f"<b>🤝 ЗВОНКИ АГЕНТОВ — {label}</b>", summary_line]
+
+    for call, a in sorted(agent_calls, key=lambda x: x[0].get("start_time", "")):
+        start_raw = call.get("start_time", "")
+        try:
+            start_dt = datetime.fromisoformat(start_raw.replace("Z", "+00:00"))
+            date_str = start_dt.strftime("%d.%m %H:%M")
+        except Exception:
+            date_str = start_raw[:16] if start_raw else "—"
+
+        call_type = call.get("call_type", "")
+        manager_num = call.get("caller_number", "") if call_type == "outbound" else (call.get("answered_phone_number") or "")
+        manager_name = phones_map.get(manager_num, manager_num or "—")
+
+        score = a.get("quality_score")
+        score_emoji = _SCORE_EMOJI.get(score, "⚪")
+        outcome = _OUTCOME_RU_AGENT.get(a.get("outcome", ""), a.get("outcome", "") or "—")
+        issues = ", ".join(a.get("issues", []))
+        is_answered = call.get("sip_status") == "answer"
+
+        line = f"\n{score_emoji} {date_str} — {manager_name}  |  {outcome}"
+        if score:
+            line += f"  |  {score}/5"
+        if not is_answered:
+            line += "  |  ⚠️ Не отвечен"
+        lines.append(line)
+        if issues:
+            lines.append(f"   ⚠️ {issues}")
+
+    return "\n".join(lines)
+
+
 def build_ai_block(data: dict) -> str:
     claude_bin = shutil.which("claude") or "/home/user/.local/bin/claude"
     prompt = WEEKLY_AI_PROMPT.replace("{data}", json.dumps(data, ensure_ascii=False, indent=2))
@@ -200,10 +272,12 @@ def main():
         f"(сервисные, в рейтинг не входят)"
     )
 
+    agent_block = build_weekly_agent_block(end_date)
+
     print("[run_weekly] Requesting AI analysis...")
     ai_block = build_ai_block(data)
 
-    full_report = "\n\n".join(filter(None, [header, recovery_block, scorecard_block, manager_block, direction_block, ai_block]))
+    full_report = "\n\n".join(filter(None, [header, recovery_block, agent_block, scorecard_block, manager_block, direction_block, ai_block]))
 
     send_message(full_report, parse_mode="HTML")
     print("[run_weekly] Done!")

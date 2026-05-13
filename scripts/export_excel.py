@@ -27,6 +27,7 @@ SCORE_COLORS = {
     5: ("2E8B57", "FFFFFF"),
 }
 COLOR_UNKNOWN    = ("AAAAAA", "FFFFFF")
+COLOR_AGENT_BG   = ("2C3E6B", "FFFFFF")
 COLOR_TITLE_BG   = "2E4057"
 COLOR_STATS_BG   = "D9E8F5"
 COLOR_INFO_BG    = "F5F8FF"
@@ -84,6 +85,11 @@ def load_phones_map() -> dict:
     return json.loads(f.read_text()) if f.exists() else {}
 
 
+def load_agents() -> dict:
+    f = DATA_DIR / "agents.json"
+    return json.loads(f.read_text()) if f.exists() else {}
+
+
 def export_problem_calls_excel(
     date: datetime,
     phones_map: dict,
@@ -95,6 +101,7 @@ def export_problem_calls_excel(
         return None
 
     calls = json.loads(calls_file.read_text())
+    agents = load_agents()
     rows = []
 
     for call in calls:
@@ -144,6 +151,7 @@ def export_problem_calls_excel(
             and raw_outcome not in PRODUCTIVE_OUTCOMES
             and not client_unavailable
         )
+        is_agent = bool(analysis.get("is_agent")) or client_num in agents
 
         rows.append({
             "time": time_str, "manager": manager_name,
@@ -157,6 +165,7 @@ def export_problem_calls_excel(
             "_client_unavailable": client_unavailable,
             "_dur_sec": dur,
             "_long_no_result": long_no_result,
+            "_is_agent": is_agent,
         })
 
     if not rows:
@@ -254,7 +263,10 @@ def export_problem_calls_excel(
     # ── Карточки ─────────────────────────────────────────────────────────────
     for call_num, r in enumerate(rows, start=1):
         score = r["score"]
-        bg_color, fg_color = SCORE_COLORS.get(score, COLOR_UNKNOWN) if score else COLOR_UNKNOWN
+        if r.get("_is_agent"):
+            bg_color, fg_color = COLOR_AGENT_BG
+        else:
+            bg_color, fg_color = SCORE_COLORS.get(score, COLOR_UNKNOWN) if score else COLOR_UNKNOWN
 
         # Звёзды оценки
         stars = ("★" * score + "☆" * (5 - score)) if score else "—"
@@ -267,11 +279,13 @@ def export_problem_calls_excel(
         else:
             long_mark = ""
 
+        agent_mark = "   🤝 АГЕНТ" if r.get("_is_agent") else ""
+
         # ── Строка 1: шапка карточки (цвет по оценке) ────────────────────
         header = (
             f"  #{call_num}   {r['time']}   {r['manager']}   {r['call_type']}   "
             f"⏱ {r['duration']}   {stars}   {r['outcome']}   {r['direction']}"
-            f"{long_mark}"
+            f"{long_mark}{agent_mark}"
         )
         c = ws.cell(row=row, column=1, value=header)
         c.font      = _font(bold=True, size=12, color=fg_color)

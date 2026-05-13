@@ -31,16 +31,31 @@ DATA_DIR = Path(__file__).parent.parent / "data"
 CALLS_DIR = DATA_DIR / "calls"
 TRANSCRIPTS_DIR = DATA_DIR / "transcripts"
 ANALYSIS_DIR = DATA_DIR / "analysis"
+AGENTS_FILE = DATA_DIR / "agents.json"
 
 ANALYSIS_DIR.mkdir(parents=True, exist_ok=True)
 
 CLAUDE_BIN = shutil.which("claude") or "/home/user/.local/bin/claude"
 
+AGENT_CALL_HINT = """\n⚠️ ОСОБЫЙ ТИП ЗВОНКА: Это звонок от АГЕНТА ({agent_name}) — B2B партнёрское агентство.
+Агент — профессионал рынка, НЕ розничный клиент. Применяй ВМЕСТО стандартных критериев:
+
+quality_score для агентов:
+5 — Полностью решил вопрос: дал точную информацию ИЛИ грамотно перевёл на РОПа при незнании
+4 — В основном помог, небольшие пробелы
+3 — Частично помог, не перевёл на РОПа когда не знал ответа
+2 — Не помог И не перевёл на РОПа — агент остался без нужного ответа
+1 — Проигнорировал агента, грубость, отказался помогать
+
+issues для агентов (только из этого списка, стандартные — НЕ применяй):
+"не перевёл на РОПа при незнании", "не уточнил детали запроса агента", "не дал точную информацию агенту", "не взял контакт агента"\n"""
+
+
 ANALYSIS_PROMPT = """Ты — аналитик колл-центра туристической компании GoTrips (Беларусь). Туры по России и СНГ.
 Тебе дана расшифровка телефонного разговора с диаризацией (speaker 0, speaker 1).
 
 ТИП ЗВОНКА: {call_type_ru}
-{call_type_hint}
+{call_type_hint}{agent_hint}
 
 Ответ СТРОГО только JSON без markdown-блоков и пояснений:
 {
@@ -73,7 +88,13 @@ ANALYSIS_PROMPT = """Ты — аналитик колл-центра турис�
 {transcript}"""
 
 
-def analyze_call(transcript_data: dict, force: bool = False) -> dict | None:
+def load_agents() -> dict:
+    if AGENTS_FILE.exists():
+        return json.loads(AGENTS_FILE.read_text())
+    return {}
+
+
+def analyze_call(transcript_data: dict, force: bool = False, agents: dict = None) -> dict | None:
     public_id = transcript_data.get("public_id")
     transcript = transcript_data.get("transcript", "")
     call_type = transcript_data.get("call_type", "inbound")
@@ -81,6 +102,13 @@ def analyze_call(transcript_data: dict, force: bool = False) -> dict | None:
     out_file = ANALYSIS_DIR / f"{public_id}.json"
     if out_file.exists() and not force:
         return json.loads(out_file.read_text())
+
+    if agents is None:
+        agents = load_agents()
+
+    client_number = transcript_data.get("client_number", "")
+    is_agent = client_number in agents
+    agent_name = agents.get(client_number, "Агент") if is_agent else ""
 
     if not transcript or len(transcript.strip()) < 20:
         result = {
@@ -91,7 +119,10 @@ def analyze_call(transcript_data: dict, force: bool = False) -> dict | None:
             "issues": [],
             "objections": [],
             "manager_highlights": "Транскрипт отсутствует или слишком короткий",
+            "is_agent": is_agent,
         }
+        if is_agent:
+            result["agent_name"] = agent_name
         out_file.write_text(json.dumps(result, ensure_ascii=False, indent=2))
         return result
 
@@ -111,9 +142,12 @@ def analyze_call(transcript_data: dict, force: bool = False) -> dict | None:
         call_type_ru = "ВХОДЯЩИЙ (клиент звонит в компанию)"
         call_type_hint = "Обычно Speaker 0 = менеджер (отвечает), Speaker 1 = клиент."
 
+    agent_hint = AGENT_CALL_HINT.replace("{agent_name}", agent_name) if is_agent else ""
+
     prompt = (ANALYSIS_PROMPT
               .replace("{call_type_ru}", call_type_ru)
               .replace("{call_type_hint}", call_type_hint)
+              .replace("{agent_hint}", agent_hint)
               .replace("{transcript}", formatted))
 
     for attempt in range(3):
@@ -135,6 +169,9 @@ def analyze_call(transcript_data: dict, force: bool = False) -> dict | None:
 
             parsed = json.loads(raw)
             parsed["public_id"] = public_id
+            parsed["is_agent"] = is_agent
+            if is_agent:
+                parsed["agent_name"] = agent_name
             out_file.write_text(json.dumps(parsed, ensure_ascii=False, indent=2))
             return parsed
 
@@ -145,7 +182,6 @@ def analyze_call(transcript_data: dict, force: bool = False) -> dict | None:
                 time.sleep(wait)
             else:
                 print(f"[analyze] ERROR {public_id}: {e}")
-                # Сохраняем заглушку только если нет уже рабочего результата
                 if not out_file.exists():
                     fallback = {
                         "public_id": public_id,
@@ -155,7 +191,10 @@ def analyze_call(transcript_data: dict, force: bool = False) -> dict | None:
                         "issues": [],
                         "objections": [],
                         "manager_highlights": f"Анализ не удался: {str(e)[:60]}",
+                        "is_agent": is_agent,
                     }
+                    if is_agent:
+                        fallback["agent_name"] = agent_name
                     out_file.write_text(json.dumps(fallback, ensure_ascii=False, indent=2))
                 return None
 
@@ -177,11 +216,12 @@ def analyze_date(date: datetime, force: bool = False) -> list[dict]:
 
     print(f"[analyze] {len(transcripts)} transcripts to analyze")
 
+    agents = load_agents()
     results = []
     for i, t in enumerate(transcripts, 1):
         pid = t.get("public_id", "?")
         print(f"[analyze] [{i}/{len(transcripts)}] {pid}...", end=" ", flush=True)
-        result = analyze_call(t, force=force)
+        result = analyze_call(t, force=force, agents=agents)
         if result:
             print(f"score={result.get('quality_score')} outcome={result.get('outcome')}")
             results.append(result)

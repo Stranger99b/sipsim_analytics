@@ -84,6 +84,71 @@ def build_summary_block(date: datetime) -> str:
     return "\n".join(lines)
 
 
+_SCORE_EMOJI = {1: "🔴", 2: "🟠", 3: "🟡", 4: "🟢", 5: "💚"}
+_OUTCOME_RU = {
+    "booked": "Бронь ✅", "interested": "Интерес", "callback": "Перезвон",
+    "info_only": "Информация", "not_interested": "Отказ", "complaint": "Жалоба",
+    "wrong_number": "Ошибка номера", "client_unavailable": "Агент занят",
+    "unknown": "—", "no_transcript": "Нет транскрипта",
+}
+
+
+def build_agent_calls_block(date: datetime) -> str:
+    calls_file = CALLS_DIR / f"{date.strftime('%Y-%m-%d')}.json"
+    if not calls_file.exists():
+        return ""
+
+    calls = json.loads(calls_file.read_text())
+    phones_map = load_phones_map()
+
+    agent_calls = []
+    for call in calls:
+        pid = call.get("public_id")
+        af = ANALYSIS_DIR / f"{pid}.json"
+        if af and af.exists():
+            a = json.loads(af.read_text())
+            if a.get("is_agent"):
+                agent_calls.append((call, a))
+
+    if not agent_calls:
+        return ""
+
+    lines = [f"<b>🤝 ЗВОНКИ АГЕНТОВ — {date.strftime('%d.%m.%Y')}</b>"]
+
+    for call, a in agent_calls:
+        start_raw = call.get("start_time", "")
+        try:
+            start_dt = datetime.fromisoformat(start_raw.replace("Z", "+00:00"))
+            time_str = start_dt.strftime("%H:%M")
+        except Exception:
+            time_str = start_raw[:16] if start_raw else "—"
+
+        call_type = call.get("call_type", "")
+        manager_num = call.get("caller_number", "") if call_type == "outbound" else (call.get("answered_phone_number") or "")
+        manager_name = phones_map.get(manager_num, manager_num or "—")
+
+        score = a.get("quality_score")
+        score_emoji = _SCORE_EMOJI.get(score, "⚪")
+        outcome = _OUTCOME_RU.get(a.get("outcome", ""), a.get("outcome", "") or "—")
+        highlights = (a.get("manager_highlights") or "")[:120]
+        issues = ", ".join(a.get("issues", []))
+        agent_name = a.get("agent_name", "Агент")
+        is_answered = call.get("sip_status") == "answer"
+
+        call_line = f"\n{score_emoji} <b>{time_str}</b> — {agent_name}  →  {manager_name}  |  {outcome}"
+        if score:
+            call_line += f"  |  Оценка: {score}/5"
+        if not is_answered:
+            call_line += "  |  ⚠️ Не отвечен"
+        lines.append(call_line)
+        if highlights:
+            lines.append(f"   💬 {highlights}")
+        if issues:
+            lines.append(f"   ⚠️ {issues}")
+
+    return "\n".join(lines)
+
+
 def build_ai_audit_block(date: datetime) -> str:
     """AI-резюме дня через Claude."""
     import shutil
@@ -189,6 +254,10 @@ def main():
     summary = build_summary_block(target_date)
     if summary:
         blocks.append(summary)
+
+    agent_block = build_agent_calls_block(target_date)
+    if agent_block:
+        blocks.append(agent_block)
 
     manager_block = get_daily_manager_block(target_date)
     if manager_block:
