@@ -124,7 +124,12 @@ def build_agent_calls_block(date: datetime) -> str:
             time_str = start_raw[:16] if start_raw else "—"
 
         call_type = call.get("call_type", "")
-        manager_num = call.get("caller_number", "") if call_type == "outbound" else (call.get("answered_phone_number") or "")
+        if call_type == "outbound":
+            manager_num = call.get("caller_number", "")
+            agent_phone = call.get("target_number", "")
+        else:
+            manager_num = call.get("answered_phone_number") or ""
+            agent_phone = call.get("caller_number", "")
         manager_name = phones_map.get(manager_num, manager_num or "—")
 
         score = a.get("quality_score")
@@ -134,8 +139,9 @@ def build_agent_calls_block(date: datetime) -> str:
         issues = ", ".join(a.get("issues", []))
         agent_name = a.get("agent_name", "Агент")
         is_answered = call.get("sip_status") == "answer"
+        agent_label = f"{agent_name} ({agent_phone})" if agent_phone else agent_name
 
-        call_line = f"\n{score_emoji} <b>{time_str}</b> — {agent_name}  →  {manager_name}  |  {outcome}"
+        call_line = f"\n{score_emoji} <b>{time_str}</b> — {agent_label}  →  {manager_name}  |  {outcome}"
         if score:
             call_line += f"  |  Оценка: {score}/5"
         if not is_answered:

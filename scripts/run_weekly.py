@@ -166,8 +166,15 @@ def build_weekly_agent_block(end_date: datetime) -> str:
             date_str = start_raw[:16] if start_raw else "—"
 
         call_type = call.get("call_type", "")
-        manager_num = call.get("caller_number", "") if call_type == "outbound" else (call.get("answered_phone_number") or "")
+        if call_type == "outbound":
+            manager_num = call.get("caller_number", "")
+            agent_phone = call.get("target_number", "")
+        else:
+            manager_num = call.get("answered_phone_number") or ""
+            agent_phone = call.get("caller_number", "")
         manager_name = phones_map.get(manager_num, manager_num or "—")
+        agent_name = a.get("agent_name", "Агент")
+        agent_label = f"{agent_name} ({agent_phone})" if agent_phone else agent_name
 
         score = a.get("quality_score")
         score_emoji = _SCORE_EMOJI.get(score, "⚪")
@@ -175,7 +182,7 @@ def build_weekly_agent_block(end_date: datetime) -> str:
         issues = ", ".join(a.get("issues", []))
         is_answered = call.get("sip_status") == "answer"
 
-        line = f"\n{score_emoji} {date_str} — {manager_name}  |  {outcome}"
+        line = f"\n{score_emoji} {date_str} — {agent_label}  →  {manager_name}  |  {outcome}"
         if score:
             line += f"  |  {score}/5"
         if not is_answered:
