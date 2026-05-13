@@ -1,0 +1,18 @@
+[
+  {
+    "call_type": "inbound",
+    "sip_status": "answer",
+    "caller_number": "+375298099498",
+    "target_number": "+375445251894",
+    "answered_phone_number": "+375445251896",
+    "answered": true,
+    "registration_time": "2026-04-12T15:24:37.000+03:00",
+    "start_time": "2026-04-12T15:24:41.000+03:00",
+    "answered_time": "2026-04-12T15:24:49.000+03:00",
+    "end_time": "2026-04-12T15:27:54.000+03:00",
+    "wait_duration_sec": 8,
+    "duration_sec": 185,
+    "play_record_link": "https://vrecords.call-tracking.by/monitor/sipsim-33d8cdfe-6499-44e3-b0a5-bf983366f50d/2026-04-12/+375298099498-1775996677.5867730C-EJc79utSLgMRIMo8.wav",
+    "public_id": "+375445251894-1775996677.5867730"
+  }
+]

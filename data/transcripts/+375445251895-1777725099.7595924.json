@@ -1,0 +1,27 @@
+{
+  "public_id": "+375445251895-1777725099.7595924",
+  "call_type": "inbound",
+  "sip_status": "answer",
+  "duration_sec": 11,
+  "wait_duration_sec": 7,
+  "start_time": "2026-05-02T15:31:44.000+03:00",
+  "answered_time": "2026-05-02T15:31:51.000+03:00",
+  "end_time": "2026-05-02T15:32:02.000+03:00",
+  "manager_number": "+375291838027",
+  "client_number": "+375291838027",
+  "transcript": "Добрый день, Анастасия. Слушаю вас. Алло.",
+  "utterances": [
+    {
+      "speaker": 0,
+      "start": 0.4,
+      "end": 0.98,
+      "text": "Добрый день, Анастасия. Слушаю вас."
+    },
+    {
+      "speaker": 0,
+      "start": 5.44,
+      "end": 5.94,
+      "text": "Алло."
+    }
+  ]
+}

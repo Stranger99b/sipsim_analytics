@@ -1,0 +1,50 @@
+[
+  {
+    "call_type": "inbound",
+    "sip_status": "answer",
+    "caller_number": "+375292386599",
+    "target_number": "+375445251896",
+    "answered_phone_number": "+375445251896",
+    "answered": true,
+    "registration_time": "2026-04-26T21:03:43.000+03:00",
+    "start_time": "2026-04-26T21:03:47.000+03:00",
+    "answered_time": "2026-04-26T21:04:01.000+03:00",
+    "end_time": "2026-04-26T21:05:53.000+03:00",
+    "wait_duration_sec": 14,
+    "duration_sec": 112,
+    "play_record_link": "https://vrecords.call-tracking.by/monitor/sipsim-33d8cdfe-6499-44e3-b0a5-bf983366f50d/2026-04-26/+375292386599-1777226623.7078436C-x3BlAhyM6w2oO4vB.wav",
+    "public_id": "+375445251896-1777226623.7078436"
+  },
+  {
+    "call_type": "outbound",
+    "sip_status": "cancel",
+    "caller_number": "+375445251896",
+    "target_number": "+375292386599",
+    "answered_phone_number": null,
+    "answered": false,
+    "registration_time": "2026-04-26T20:48:38.000+03:00",
+    "start_time": "2026-04-26T20:48:42.000+03:00",
+    "answered_time": null,
+    "end_time": "2026-04-26T20:49:09.000+03:00",
+    "wait_duration_sec": 27,
+    "duration_sec": 0,
+    "play_record_link": null,
+    "public_id": "+375292386599-1777225718.7078070"
+  },
+  {
+    "call_type": "outbound",
+    "sip_status": "no_answer",
+    "caller_number": "+375445251895",
+    "target_number": "+375296569602",
+    "answered_phone_number": null,
+    "answered": false,
+    "registration_time": "2026-04-26T14:23:42.000+03:00",
+    "start_time": "2026-04-26T14:23:44.000+03:00",
+    "answered_time": null,
+    "end_time": "2026-04-26T14:24:14.000+03:00",
+    "wait_duration_sec": 30,
+    "duration_sec": 0,
+    "play_record_link": null,
+    "public_id": "+375296569602-1777202622.7058667"
+  }
+]

@@ -1,0 +1,27 @@
+{
+  "public_id": "+375445251894-1777138635.7035314",
+  "call_type": "inbound",
+  "sip_status": "answer",
+  "duration_sec": 4,
+  "wait_duration_sec": 7,
+  "start_time": "2026-04-25T20:37:20.000+03:00",
+  "answered_time": "2026-04-25T20:37:27.000+03:00",
+  "end_time": "2026-04-25T20:37:31.000+03:00",
+  "manager_number": "+375292305264",
+  "client_number": "+375292305264",
+  "transcript": "Добрый вечер, компания GoTrips. Слушаются!",
+  "utterances": [
+    {
+      "speaker": 0,
+      "start": 0.0,
+      "end": 0.5,
+      "text": "Добрый"
+    },
+    {
+      "speaker": 0,
+      "start": 1.84,
+      "end": 3.7,
+      "text": "вечер, компания GoTrips. Слушаются!"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "public_id": "+375445055708-1776601295.6508353",
+  "call_type": "outbound",
+  "sip_status": "answer",
+  "duration_sec": 7,
+  "wait_duration_sec": 0,
+  "start_time": null,
+  "answered_time": "2026-04-19T15:21:52.000+03:00",
+  "end_time": "2026-04-19T15:21:59.000+03:00",
+  "manager_number": "+375445251895",
+  "client_number": "+375445055708",
+  "transcript": "",
+  "utterances": []
+}

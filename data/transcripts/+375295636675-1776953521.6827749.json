@@ -1,0 +1,14 @@
+{
+  "public_id": "+375295636675-1776953521.6827749",
+  "call_type": "outbound",
+  "sip_status": "answer",
+  "duration_sec": 2,
+  "wait_duration_sec": 3,
+  "start_time": "2026-04-23T17:12:07.000+03:00",
+  "answered_time": "2026-04-23T17:12:10.000+03:00",
+  "end_time": "2026-04-23T17:12:12.000+03:00",
+  "manager_number": "+375445251895",
+  "client_number": "+375295636675",
+  "transcript": "",
+  "utterances": []
+}

@@ -1,0 +1,27 @@
+{
+  "public_id": "+375447706988-1778084097.7992451",
+  "call_type": "inbound",
+  "sip_status": "answer",
+  "duration_sec": 5,
+  "wait_duration_sec": 5,
+  "start_time": "2026-05-06T19:15:03.000+03:00",
+  "answered_time": "2026-05-06T19:15:08.000+03:00",
+  "end_time": "2026-05-06T19:15:13.000+03:00",
+  "manager_number": "+375299251744",
+  "client_number": "+375299251744",
+  "transcript": "Компания Годтиф, здравствуйте!",
+  "utterances": [
+    {
+      "speaker": 0,
+      "start": 0.0,
+      "end": 0.5,
+      "text": "Компания"
+    },
+    {
+      "speaker": 0,
+      "start": 1.76,
+      "end": 2.74,
+      "text": "Годтиф, здравствуйте!"
+    }
+  ]
+}

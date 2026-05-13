@@ -1,0 +1,10 @@
+{
+  "public_id": "+375295053910-1776867184.6709797",
+  "direction": null,
+  "quality_score": null,
+  "outcome": "unknown",
+  "issues": [],
+  "objections": [],
+  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "is_agent": false
+}

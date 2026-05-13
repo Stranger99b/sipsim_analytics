@@ -254,26 +254,38 @@ def build_ai_block(data: dict) -> str:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--month", help="YYYY-MM (default: last month)")
+    parser.add_argument("--start", help="YYYY-MM-DD — начало произвольного периода")
+    parser.add_argument("--end", help="YYYY-MM-DD — конец периода")
     parser.add_argument("--no-ai", action="store_true", help="Skip AI analysis block")
     args = parser.parse_args()
 
-    if args.month:
+    if args.start and args.end:
+        start_dt = datetime.strptime(args.start, "%Y-%m-%d")
+        end_dt = datetime.strptime(args.end, "%Y-%m-%d")
+        all_dates = []
+        d = start_dt
+        while d <= end_dt:
+            all_dates.append(d)
+            d += timedelta(days=1)
+        label = f"{start_dt.strftime('%d.%m')}–{end_dt.strftime('%d.%m.%Y')}"
+    elif args.month:
         year, month = map(int, args.month.split("-"))
+        all_dates = get_month_dates(year, month)
+        label = f"{MONTHS_RU[month]} {year}"
     else:
         today = datetime.now()
         month = today.month - 1 if today.month > 1 else 12
         year = today.year if today.month > 1 else today.year - 1
+        all_dates = get_month_dates(year, month)
+        label = f"{MONTHS_RU[month]} {year}"
 
-    all_dates = get_month_dates(year, month)
     available_dates = [d for d in all_dates if (CALLS_DIR / f"{d.strftime('%Y-%m-%d')}.json").exists()]
 
     if not available_dates:
-        print(f"[run_monthly] No data for {year}-{month:02d}")
+        print(f"[run_monthly] No data for the specified period")
         return
 
-    month_ru = MONTHS_RU[month]
-    label = f"{month_ru} {year}"
-    print(f"[run_monthly] Monthly report: {label} ({len(available_dates)} days with data)")
+    print(f"[run_monthly] Period report: {label} ({len(available_dates)} days with data)")
 
     phones_map = load_phones_map()
 
@@ -348,7 +360,8 @@ def main():
 
     # Monthly Excel
     print("[run_monthly] Exporting monthly Excel (all calls)...")
-    out_path = REPORTS_DIR / f"calls_{year}-{month:02d}_{month_ru}.xlsx"
+    safe_label = label.replace(" ", "_").replace("–", "-").replace(".", "")
+    out_path = REPORTS_DIR / f"calls_{safe_label}.xlsx"
     excel_path = export_period_excel(available_dates, phones_map, label, out_path)
     if excel_path:
         print(f"[run_monthly] Excel saved: {excel_path}")

@@ -1,0 +1,18 @@
+[
+  {
+    "call_type": "inbound",
+    "sip_status": "answer",
+    "caller_number": "+375293333949",
+    "target_number": "+375445251894",
+    "answered_phone_number": "+375445251897",
+    "answered": true,
+    "registration_time": "2026-04-21T16:57:25.000+03:00",
+    "start_time": "2026-04-21T16:57:30.000+03:00",
+    "answered_time": "2026-04-21T16:57:36.000+03:00",
+    "end_time": "2026-04-21T17:02:27.000+03:00",
+    "wait_duration_sec": 6,
+    "duration_sec": 291,
+    "play_record_link": "https://vrecords.call-tracking.by/monitor/sipsim-33d8cdfe-6499-44e3-b0a5-bf983366f50d/2026-04-21/+375293333949-1776779845.6593307C-EoUX8ecxEHajpU6z.wav",
+    "public_id": "+375445251894-1776779845.6593307"
+  }
+]
