@@ -1,9 +1,10 @@
 {
-  "public_id": "+375445251897-1778162799.8089116",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Питер",
+  "quality_score": 4,
+  "outcome": "booked",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)"
+  "manager_highlights": "Менеджер грамотно перезвонил клиенту, уточнил ключевые параметры (дата, кол-во мест, город выезда), подробно разложил стоимость и программу тура. Чётко объяснил схему оплаты и сразу перешёл к оформлению — клиент согласился, договорились о дальнейших шагах через Instagram.",
+  "public_id": "+375445251897-1778162799.8089116",
+  "is_agent": false
 }

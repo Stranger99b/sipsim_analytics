@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251895-1776953546.6827831",
   "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "quality_score": 4,
+  "outcome": "callback",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер оперативно перезвонил с уточнённой информацией, чётко назвал стоимость (1250 EUR + 150 USD при подселении) и доступность мест, грамотно добавил аргумент о возможном росте цены ближе к вылету. Взял инициативу и пообещал сам набрать завтра — правильный шаг, чтобы не потерять клиента.",
+  "public_id": "+375445251895-1776953546.6827831",
   "is_agent": false
 }

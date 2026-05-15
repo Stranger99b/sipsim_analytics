@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251894-1777104306.6976823",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Дагестан",
+  "quality_score": 4,
+  "outcome": "info_only",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер чётко ответил на все конкретные вопросы: наличие мест на две даты, подселение, визовый вопрос по Грузии, схема оплаты и доп. экскурсии. Не взял контакт и не предложил забронировать — клиент сам не выразил готовности, поэтому за это не штрафуем.",
+  "public_id": "+375445251894-1777104306.6976823",
   "is_agent": false
 }

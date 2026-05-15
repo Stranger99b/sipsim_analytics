@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445830200-1777540469.7462565",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Дагестан",
+  "quality_score": 4,
+  "outcome": "interested",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер чётко разъяснил трёхэтапную схему оплаты (150 BYN за услугу → 150 USD предоплата за неделю до выезда → 200 USD остаток в автобусе) и оперативно ответил на конкретный вопрос клиента о предоплате. Следующий шаг согласован — отправка ссылки на мессенджер для оформления договора.",
+  "public_id": "+375445830200-1777540469.7462565",
   "is_agent": false
 }

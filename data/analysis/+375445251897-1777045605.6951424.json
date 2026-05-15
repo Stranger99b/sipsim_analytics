@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251897-1777045605.6951424",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Питер",
+  "quality_score": 4,
+  "outcome": "booked",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер чётко и терпеливо объяснил схему оплаты (150 руб. сейчас, 70$ за неделю, остаток в автобусе), по просьбе клиента повторил сумму ещё раз без раздражения. Гибко решил вопрос с паспортными данными мужа, разрешив прислать фото.",
+  "public_id": "+375445251897-1777045605.6951424",
   "is_agent": false
 }

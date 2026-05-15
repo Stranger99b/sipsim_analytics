@@ -1,10 +1,10 @@
 {
-  "public_id": "+375291056001-1776949333.6814361",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Северная Осетия",
+  "quality_score": 4,
+  "outcome": "callback",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер чётко и уверенно ответила на все вопросы клиента: автобус, Wi-Fi, возрастной состав группы, схема оплаты. Проявила инициативу — в режиме реального времени уточнила состав записавшихся на 8 августа и договорилась о визите в офис с подтверждением в воскресенье утром.",
+  "public_id": "+375291056001-1776949333.6814361",
   "is_agent": false
 }

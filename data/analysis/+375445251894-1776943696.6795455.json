@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251894-1776943696.6795455",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Дагестан",
+  "quality_score": 4,
+  "outcome": "booked",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Анастасия чётко и без лишних слов объяснила разницу в ценах (одиночное размещение), подтвердила перенос и обозначила конкретный следующий шаг — обновлённый договор на подпись через чат. Сервисный запрос обработан профессионально и завершён.",
+  "public_id": "+375445251894-1776943696.6795455",
   "is_agent": false
 }

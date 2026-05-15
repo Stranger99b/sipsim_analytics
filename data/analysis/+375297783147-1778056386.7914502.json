@@ -1,9 +1,10 @@
 {
-  "public_id": "+375297783147-1778056386.7914502",
   "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "quality_score": 4,
+  "outcome": "wrong_number",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)"
+  "manager_highlights": "Менеджер вежливо уточнила адрес (Дзержинского 3Б) и разобралась в ситуации без напряжения. Звонок не связан с туристическими услугами — похоже на ошибочный или бытовой звонок, завершён корректно.",
+  "public_id": "+375297783147-1778056386.7914502",
+  "is_agent": false
 }

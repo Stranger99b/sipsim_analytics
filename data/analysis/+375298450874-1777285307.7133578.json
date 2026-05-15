@@ -1,10 +1,10 @@
 {
-  "public_id": "+375298450874-1777285307.7133578",
   "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "quality_score": 4,
+  "outcome": "interested",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер чётко и структурированно изложила весь процесс бронирования: необходимые документы, варианты подписания договора (электронно или в офисе) и трёхэтапную схему оплаты. Оперативно дублировала информацию в Instagram-чат, обеспечив клиенту удобный следующий шаг.",
+  "public_id": "+375298450874-1777285307.7133578",
   "is_agent": false
 }

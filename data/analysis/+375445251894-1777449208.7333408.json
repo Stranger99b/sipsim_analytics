@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251894-1777449208.7333408",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Дагестан",
+  "quality_score": 4,
+  "outcome": "callback",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер быстро нашёл бронирование по фамилии и деталям договора, чётко понял нестандартный запрос клиента (адрес гостиницы для согласования отпуска на работе) и взял на себя конкретное обязательство — уточнить и отправить информацию в Instagram.",
+  "public_id": "+375445251894-1777449208.7333408",
   "is_agent": false
 }

@@ -1,10 +1,12 @@
 {
-  "public_id": "+375445251894-1777118264.7010980",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
-  "issues": [],
+  "direction": "Грузия",
+  "quality_score": 2,
+  "outcome": "info_only",
+  "issues": [
+    "не предложил альтернативу"
+  ],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер сообщил об отсутствии мест в отеле на запрошенные даты, однако не предпринял попытки предложить альтернативное размещение или скорректировать даты — клиент распрощался и ушёл без нового предложения.",
+  "public_id": "+375445251894-1777118264.7010980",
   "is_agent": false
 }

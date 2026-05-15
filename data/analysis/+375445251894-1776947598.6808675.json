@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251894-1776947598.6808675",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Абхазия",
+  "quality_score": 4,
+  "outcome": "booked",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Галина оперативно нашла бронирование по дате и имени, грамотно пояснила статус договора и предложила конкретные варианты размещения (2 трёхместных номера). Звонок закрыт договорённостью — клиент подключается к группе.",
+  "public_id": "+375445251894-1776947598.6808675",
   "is_agent": false
 }

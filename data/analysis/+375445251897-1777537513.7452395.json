@@ -1,10 +1,12 @@
 {
-  "public_id": "+375445251897-1777537513.7452395",
   "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "quality_score": 4,
+  "outcome": "interested",
   "issues": [],
-  "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "objections": [
+    "нежелание подселения к посторонним"
+  ],
+  "manager_highlights": "Менеджер чётко изложил варианты расселения и по ходу диалога предложил одноместный номер с доплатой как решение проблемы сестры — грамотное закрытие возражения. Разговор короткий, по делу, клиент ушёл думать.",
+  "public_id": "+375445251897-1777537513.7452395",
   "is_agent": false
 }

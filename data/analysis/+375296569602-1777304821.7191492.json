@@ -1,10 +1,10 @@
 {
-  "public_id": "+375296569602-1777304821.7191492",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Мурманск",
+  "quality_score": 4,
+  "outcome": "booked",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер чётко уточнил детали (1 место, совместный номер с подругой Полиной Шпаковской) и грамотно выстроил следующий шаг — SMS со ссылками на мессенджеры для оформления договора. Звонок завершён конкретным договорённостью без лишних вопросов.",
+  "public_id": "+375296569602-1777304821.7191492",
   "is_agent": false
 }

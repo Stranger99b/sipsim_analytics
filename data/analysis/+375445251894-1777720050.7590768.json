@@ -1,10 +1,12 @@
 {
-  "public_id": "+375445251894-1777720050.7590768",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Абхазия",
+  "quality_score": 4,
+  "outcome": "interested",
   "issues": [],
-  "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "objections": [
+    "документы на границе (военник)"
+  ],
+  "manager_highlights": "Оперативно решила проблему с SMS — предложила отправить на актуальный номер и пояснила процесс бронирования через мессенджеры. Уверенно и чётко ответила на вопрос о документах, развеяла сомнения клиента по поводу границы.",
+  "public_id": "+375445251894-1777720050.7590768",
   "is_agent": false
 }

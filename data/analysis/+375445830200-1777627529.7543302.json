@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445830200-1777627529.7543302",
   "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "quality_score": 4,
+  "outcome": "not_interested",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер оперативно обработал запрос на аннуляцию брони: чётко подтвердил отмену, не создал лишнего напряжения. Корректно завершил звонок без потери контакта.",
+  "public_id": "+375445830200-1777627529.7543302",
   "is_agent": false
 }

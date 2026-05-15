@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251894-1777470459.7402888",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Абхазия",
+  "quality_score": 4,
+  "outcome": "interested",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер чётко ответил на вопросы о режиме работы и дал подробные инструкции по проезду до офиса. Проявил инициативу — уточнил время визита и завершил разговор фразой «Я ожидаю вас», подтвердив договорённость о встрече.",
+  "public_id": "+375445251894-1777470459.7402888",
   "is_agent": false
 }

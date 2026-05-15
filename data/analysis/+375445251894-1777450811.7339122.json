@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251894-1777450811.7339122",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Грузия",
+  "quality_score": 4,
+  "outcome": "info_only",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "B2B-звонок от партнёрского агентства «Отдых без границы» (Витебск): менеджер чётко разъяснила условия оплаты (250 руб. тур услуга + 110$ за неделю до выезда), порядок бронирования на сайте и значение статусов «мало мест» / «под запрос». Все вопросы закрыты точно и без лишних слов.",
+  "public_id": "+375445251894-1777450811.7339122",
   "is_agent": false
 }

@@ -1,9 +1,10 @@
 {
-  "public_id": "+375445251896-1778072227.7966453",
   "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "quality_score": 4,
+  "outcome": "info_only",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)"
+  "manager_highlights": "Менеджер чётко ответил на конкретный вопрос о расположении офиса, дал понятные пошаговые ориентиры (лифт, седьмой этаж, налево, зелёные стрелочки). Короткий информационный звонок отработан профессионально.",
+  "public_id": "+375445251896-1778072227.7966453",
+  "is_agent": false
 }

@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251894-1777539572.7459573",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Дагестан",
+  "quality_score": 4,
+  "outcome": "info_only",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "B2B-звонок от партнёрского агентства: менеджер чётко ответил на все вопросы — стоимость брони места (25 руб.), схему работы (написать дату → получить рассадку в Viber), порядок оплаты (наличные в автобусе). Контакт установлен, вся нужная информация передана.",
+  "public_id": "+375445251894-1777539572.7459573",
   "is_agent": false
 }

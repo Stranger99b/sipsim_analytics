@@ -1,11 +1,11 @@
 {
-  "public_id": "+375447865148-1777627269.7542860",
   "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "quality_score": 4,
+  "outcome": "callback",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер чётко и лаконично сообщил агенту о наличии мест: на 4-е мест нет, только на 6-е. Короткий профессиональный B2B-обмен — агент получил точный ответ и ушёл уточнять к своим туристам.",
+  "public_id": "+375447865148-1777627269.7542860",
   "is_agent": true,
   "agent_name": "Агент"
 }

@@ -1,9 +1,10 @@
 {
-  "public_id": "+375445251894-1778247248.8190187",
   "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "quality_score": 4,
+  "outcome": "info_only",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)"
+  "manager_highlights": "Профессионально обработал B2B-запрос от агентства Flyzy's (Витебск): оперативно разобрался с ситуацией по статусу оплаты туриста Паневкиной, объяснил причину несчитывания платежа системой и дал чёткие инструкции на будущее. Звонок завершён взаимно удовлетворительно.",
+  "public_id": "+375445251894-1778247248.8190187",
+  "is_agent": false
 }

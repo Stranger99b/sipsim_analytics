@@ -1,10 +1,12 @@
 {
-  "public_id": "+375445251894-1777719401.7590027",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Абхазия",
+  "quality_score": 4,
+  "outcome": "interested",
   "issues": [],
-  "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "objections": [
+    "оплата черепахой — картой, а не через ЕРИП"
+  ],
+  "manager_highlights": "Менеджер чётко объяснил маршрут (Воронеж → Адлер → граница), схему оплаты рассрочкой и закрыл вопрос по Черепахе. Правильно предложил онлайн-оформление и зафиксировал следующий шаг — отправить SMS со ссылкой на чат и всей информацией по датам.",
+  "public_id": "+375445251894-1777719401.7590027",
   "is_agent": false
 }

@@ -1,9 +1,10 @@
 {
-  "public_id": "+375445251894-1778156238.8070154",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Дагестан",
+  "quality_score": 4,
+  "outcome": "info_only",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)"
+  "manager_highlights": "Менеджер чётко и по существу ответил на конкретный вопрос о рассрочке: назвал все три карты (Магнит, Халва, Черепаха) и объяснил логику покрытия суммы через овердрафт. Короткий, информативный ответ без воды.",
+  "public_id": "+375445251894-1778156238.8070154",
+  "is_agent": false
 }

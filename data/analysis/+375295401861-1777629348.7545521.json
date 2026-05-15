@@ -1,10 +1,12 @@
 {
-  "public_id": "+375295401861-1777629348.7545521",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Дагестан",
+  "quality_score": 4,
+  "outcome": "interested",
   "issues": [],
-  "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "objections": [
+    "вопрос по оплате и договору"
+  ],
+  "manager_highlights": "Менеджер чётко объяснил трёхэтапную схему оплаты, перечислил необходимые паспортные данные и подтвердил возможность удалённого оформления — клиент готов к следующему шагу. Договорились о продолжении через Instagram, что соответствует предпочтениям клиента.",
+  "public_id": "+375295401861-1777629348.7545521",
   "is_agent": false
 }

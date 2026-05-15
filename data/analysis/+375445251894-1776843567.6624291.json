@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251894-1776843567.6624291",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Турция",
+  "quality_score": 4,
+  "outcome": "wrong_number",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер вежливо объяснила, что компания не работает с турецким направлением и специализируется на автобусных турах. Корректный и чёткий ответ на нецелевой запрос.",
+  "public_id": "+375445251894-1776843567.6624291",
   "is_agent": false
 }

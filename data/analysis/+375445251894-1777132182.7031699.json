@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251894-1777132182.7031699",
   "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "quality_score": 4,
+  "outcome": "info_only",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер чётко и дружелюбно объяснил маршрут до офиса, уточнил местонахождение клиента и дал точные ориентиры. Завершил разговор приветливым «ждём» — хороший тон перед личной встречей.",
+  "public_id": "+375445251894-1777132182.7031699",
   "is_agent": false
 }

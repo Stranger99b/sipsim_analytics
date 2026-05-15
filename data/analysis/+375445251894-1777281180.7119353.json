@@ -1,10 +1,12 @@
 {
-  "public_id": "+375445251894-1777281180.7119353",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Дагестан",
+  "quality_score": 4,
+  "outcome": "info_only",
   "issues": [],
-  "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "objections": [
+    "возврат денег за отмену одного участника"
+  ],
+  "manager_highlights": "Менеджер чётко изложил политику невозврата и сразу предложил альтернативу — перенос средств на другой тур в течение года. Особо отмечается проактивность: удержал клиента перед «до свидания» и тут же оформил отмену, не оставив вопрос подвисшим.",
+  "public_id": "+375445251894-1777281180.7119353",
   "is_agent": false
 }

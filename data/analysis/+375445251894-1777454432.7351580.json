@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251894-1777454432.7351580",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Грузия",
+  "quality_score": 4,
+  "outcome": "callback",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер профессионально принял B2B-звонок, честно признал административный сбой (договор изучили, но забыли выслать подписанным) и сразу предложил конкретное решение — найти, подписать и выслать скан. Звонок завершён с чёткой договорённостью о следующем шаге.",
+  "public_id": "+375445251894-1777454432.7351580",
   "is_agent": false
 }

@@ -1,9 +1,10 @@
 {
-  "public_id": "+375292685793-1778137975.8010022",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Китай",
+  "quality_score": 4,
+  "outcome": "interested",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)"
+  "manager_highlights": "Менеджер чётко озвучил цены по двум направлениям с учётом питания, дал персонализированную рекомендацию в пользу Китая для семьи с детьми (зоопарк, сафари, романтик-шоу, океанариум) и завершил звонок конкретным следующим шагом — отправкой подробных материалов в Телеграм.",
+  "public_id": "+375292685793-1778137975.8010022",
+  "is_agent": false
 }

@@ -1,9 +1,10 @@
 {
-  "public_id": "+375445251894-1778227413.8128223",
   "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "quality_score": 4,
+  "outcome": "wrong_number",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)"
+  "manager_highlights": "Менеджер корректно и без грубости объяснил, что компания не работает по направлениям Турция/Англия, и вскользь обозначил свою специализацию (Грузия, Россия). Мог бы активнее предложить имеющиеся направления, но в целом ситуация отработана вежливо.",
+  "public_id": "+375445251894-1778227413.8128223",
+  "is_agent": false
 }

@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251896-1778313566.8219285",
   "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "quality_score": 3,
+  "outcome": "info_only",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Короткий сервисный звонок по уже состоявшемуся бронированию: менеджер уточнила дату выезда (11 мая, понедельник) и попросила прислать программу тура в Viber. Диаризация сломана — реплики клиента не разделены, оценить качество диалога полноценно невозможно.",
+  "public_id": "+375445251896-1778313566.8219285",
   "is_agent": false
 }

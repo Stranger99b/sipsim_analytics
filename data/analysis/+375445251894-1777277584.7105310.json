@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251894-1777277584.7105310",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Абхазия",
+  "quality_score": 3,
+  "outcome": "complaint",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер корректно объяснил политику невозврата предоплаты и предложил практическое решение — разместить оставшихся участников в двухместном номере. Звонок закрыт без попытки удержать клиента или предложить альтернативный тур.",
+  "public_id": "+375445251894-1777277584.7105310",
   "is_agent": false
 }

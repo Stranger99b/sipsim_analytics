@@ -1,11 +1,11 @@
 {
-  "public_id": "+375445251896-1777969432.7795159",
   "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "quality_score": 4,
+  "outcome": "info_only",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер грамотно провёл агента (ИП Роговцева) по личному кабинету до нужного раздела — агентский договор был найден и скачан. При первоначальном затруднении уточнил информацию у руководителя, что говорит о правильном подходе при неуверенности.",
+  "public_id": "+375445251896-1777969432.7795159",
   "is_agent": true,
   "agent_name": "Агент"
 }

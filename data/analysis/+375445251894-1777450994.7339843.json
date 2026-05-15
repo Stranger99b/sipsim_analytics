@@ -1,11 +1,11 @@
 {
-  "public_id": "+375445251894-1777450994.7339843",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Дагестан",
+  "quality_score": 4,
+  "outcome": "interested",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер чётко и профессионально ответил на все вопросы агента: наличие мест на конкретные даты, изменения в программе, условия комиссии и оплаты. Проявил инициативу — предложил отправить схему рассадки в вайбер, что ускорило принятие решения агентом.",
+  "public_id": "+375445251894-1777450994.7339843",
   "is_agent": true,
   "agent_name": "Агент"
 }

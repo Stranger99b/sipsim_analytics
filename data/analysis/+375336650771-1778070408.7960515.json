@@ -1,9 +1,10 @@
 {
-  "public_id": "+375336650771-1778070408.7960515",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Грузия (Кобулети)",
+  "quality_score": 4,
+  "outcome": "info_only",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)"
+  "manager_highlights": "Анастасия чётко и оперативно ответила на все вопросы B2B-партнёра: наличие мест в Кобулети на 3 и 7 июля, конкретные отели, доступность на 12-е, цена за человека. Звонок короткий и по делу — именно то, что нужно для партнёрского запроса.",
+  "public_id": "+375336650771-1778070408.7960515",
+  "is_agent": false
 }

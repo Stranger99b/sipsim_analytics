@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251894-1777303705.7190004",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Дагестан",
+  "quality_score": 4,
+  "outcome": "info_only",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер чётко ответила на оба вопроса: объяснила порядок выставления счёта (за 10 дней до выезда) и корректно перенаправила клиента по вопросу трудоустройства — дала контактный номер в Telegram. Звонок короткий, информационный, оба запроса закрыты.",
+  "public_id": "+375445251894-1777303705.7190004",
   "is_agent": false
 }

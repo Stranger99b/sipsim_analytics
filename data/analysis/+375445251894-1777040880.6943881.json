@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251894-1777040880.6943881",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Грузия",
+  "quality_score": 4,
+  "outcome": "interested",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер уверенно и точно ответил на все вопросы: наличие дат, нотариальная доверенность на несовершеннолетнего брата, страховки, расселение в двух двухместных номерах. В конце грамотно попытался взять инициативу, предложив прислать ссылку для передачи данных.",
+  "public_id": "+375445251894-1777040880.6943881",
   "is_agent": false
 }

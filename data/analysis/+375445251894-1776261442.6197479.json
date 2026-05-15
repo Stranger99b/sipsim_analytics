@@ -1,10 +1,12 @@
 {
-  "public_id": "+375445251894-1776261442.6197479",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
-  "issues": [],
+  "direction": "Питер",
+  "quality_score": 3,
+  "outcome": "interested",
+  "issues": [
+    "не взял контакт"
+  ],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Карина грамотно проконсультировала по ценам из Гродно и самостоятельно предложила актуальную скидку 25$ — хороший проактивный приём. Однако при прощании не взяла контакт клиента и не предложила перезвонить самой, хотя клиент явно заинтересован и почти готов к брони.",
+  "public_id": "+375445251894-1776261442.6197479",
   "is_agent": false
 }

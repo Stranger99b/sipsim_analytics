@@ -1,10 +1,10 @@
 {
-  "public_id": "+375172256246-1776845903.6634448",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Питер",
+  "quality_score": 4,
+  "outcome": "info_only",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "B2B-звонок к партнёру/перевозчику по наличию мест Минск–Питер на 2 июля: менеджер последовательно уточнил статус тягача, возможность добавить заявки и исторические сроки ожидания. Звонок проведён профессионально, все нужные вопросы заданы, информация зафиксирована.",
+  "public_id": "+375172256246-1776845903.6634448",
   "is_agent": false
 }

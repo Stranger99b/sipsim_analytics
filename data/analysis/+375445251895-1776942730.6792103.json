@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251895-1776942730.6792103",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Питер-Карелия",
+  "quality_score": 4,
+  "outcome": "booked",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер быстро идентифицировала клиента через связь с подругой Ангелиной и чётко направила на следующий шаг — в мессенджер для оформления брони и оплаты. Звонок закрыт профессионально и без лишних вопросов.",
+  "public_id": "+375445251895-1776942730.6792103",
   "is_agent": false
 }

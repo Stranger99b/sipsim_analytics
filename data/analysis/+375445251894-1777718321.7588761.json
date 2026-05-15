@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251894-1777718321.7588761",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Дагестан",
+  "quality_score": 4,
+  "outcome": "info_only",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер грамотно и детально ответил на все вопросы клиента: программа тура, длительность, стоимость, карманные расходы, активности. Корректно уточнил готовность к бронированию и дал мотивирующий аргумент о росте цен и заполняемости группы.",
+  "public_id": "+375445251894-1777718321.7588761",
   "is_agent": false
 }

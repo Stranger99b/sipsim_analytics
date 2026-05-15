@@ -1,10 +1,10 @@
 {
-  "public_id": "+375333129173-1777722684.7593386",
   "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "quality_score": 3,
+  "outcome": "client_unavailable",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер корректно отреагировала на занятость клиента: не настаивала, вежливо завершила разговор и обозначила готовность ждать. Звонок короткий и по делу.",
+  "public_id": "+375333129173-1777722684.7593386",
   "is_agent": false
 }

@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251894-1776957668.6836939",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Дагестан",
+  "quality_score": 4,
+  "outcome": "booked",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Чёткий B2B-звонок: менеджер корректно разъяснил схему оплаты (предоплата $150/чел за неделю до выезда, комиссия $30/чел, остаток наличными в автобусе) и уточнила дату выезда. Профессиональный тон, информация подана структурированно.",
+  "public_id": "+375445251894-1776957668.6836939",
   "is_agent": false
 }

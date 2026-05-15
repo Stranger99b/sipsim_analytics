@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251894-1776150334.6003525",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Дагестан",
+  "quality_score": 4,
+  "outcome": "booked",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер чётко ответил на все вопросы: наличие мест, схему оплаты, отличие туров Дагестан и 2.0. Корректно перевёл клиента в мессенджер для оформления брони, не упустив ни один запрос клиента.",
+  "public_id": "+375445251894-1776150334.6003525",
   "is_agent": false
 }

@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251894-1777378589.7272398",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Питер",
+  "quality_score": 4,
+  "outcome": "interested",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "B2B-звонок от партнёрского агентства: менеджер оперативно проверил наличие мест и чётко разъяснил схему оплаты (150 BYR + 75$ предоплата + остаток в автобусе). Партнёр получил всю нужную информацию и готов предлагать тур клиентам.",
+  "public_id": "+375445251894-1777378589.7272398",
   "is_agent": false
 }

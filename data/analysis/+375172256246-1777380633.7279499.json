@@ -1,10 +1,10 @@
 {
-  "public_id": "+375172256246-1777380633.7279499",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Питер",
+  "quality_score": 4,
+  "outcome": "info_only",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер корректно провёл B2B-звонок в групповые кассы — чётко обозначил тему (заявка Минск–Питер на 2 июля) и задал конкретный уточняющий вопрос про добавление пассажира. Звонок краткий и по делу, все нужные ответы получены.",
+  "public_id": "+375172256246-1777380633.7279499",
   "is_agent": false
 }

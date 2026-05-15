@@ -1,9 +1,14 @@
 {
+  "direction": "Дагестан",
+  "quality_score": 3,
+  "outcome": "info_only",
+  "issues": [
+    "не взял контакт"
+  ],
+  "objections": [
+    "наводнение в Дагестане"
+  ],
+  "manager_highlights": "Менеджер оперативно снял возражение по поводу наводнения, сославшись на уже состоявшиеся выезды — хороший приём. Однако не развил диалог: не уточнил даты и количество человек, не предложил конкретный тур на август и не взял контакт у клиента, проявившего реальный интерес.",
   "public_id": "+375445251894-1778057547.7918596",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
-  "issues": [],
-  "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)"
+  "is_agent": false
 }

@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251894-1776863133.6696812",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Дагестан",
+  "quality_score": 4,
+  "outcome": "info_only",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Клиент задал конкретный вопрос о платном выборе места в экскурсионном туре — менеджер ответил чётко и быстро (да, 25 рублей). Короткий информационный звонок отработан профессионально.",
+  "public_id": "+375445251894-1776863133.6696812",
   "is_agent": false
 }

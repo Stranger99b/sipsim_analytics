@@ -1,9 +1,10 @@
 {
-  "public_id": "+375445251894-1778170955.8102701",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Абхазия",
+  "quality_score": 4,
+  "outcome": "booked",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)"
+  "manager_highlights": "Менеджер чётко и быстро ответил на конкретный вопрос о расположении мест в поезде для двух семей, детально объяснил конфигурацию (2 нижних + 1 верхнее vs 4 места). Звонок завершился подтверждением клиента о внесении предоплаты.",
+  "public_id": "+375445251894-1778170955.8102701",
+  "is_agent": false
 }

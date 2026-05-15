@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251894-1777534242.7441369",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Дагестан",
+  "quality_score": 4,
+  "outcome": "info_only",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Профессионально обработала B2B-обращение партнёрского агентства: быстро разобралась в технической проблеме с количеством туристов в заявке, дала чёткую инструкцию (аннулировать и завести заново), подтвердила дату. Коротко и по делу, без лишних вопросов.",
+  "public_id": "+375445251894-1777534242.7441369",
   "is_agent": false
 }

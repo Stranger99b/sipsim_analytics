@@ -1,10 +1,14 @@
 {
-  "public_id": "+375445251894-1776169377.6068045",
   "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
-  "issues": [],
-  "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "quality_score": 3,
+  "outcome": "not_interested",
+  "issues": [
+    "не предложил альтернативу"
+  ],
+  "objections": [
+    "клиент не может поехать из-за работы"
+  ],
+  "manager_highlights": "Менеджер ответил на вопрос об аннуляции: сообщил о невозврате средств и указал на личный кабинет. Не предпринял попытки удержать клиента — не предложил перенести тур на другую дату.",
+  "public_id": "+375445251894-1776169377.6068045",
   "is_agent": false
 }

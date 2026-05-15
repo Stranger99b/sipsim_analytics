@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251894-1777035740.6931334",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Дагестан",
+  "quality_score": 4,
+  "outcome": "info_only",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер чётко подтвердил состоятельность тура на 11 мая и уточнил порядок уведомления об оплате (Viber за 10 дней). Звонок короткий, по существу — клиент получил ответы на все вопросы.",
+  "public_id": "+375445251894-1777035740.6931334",
   "is_agent": false
 }

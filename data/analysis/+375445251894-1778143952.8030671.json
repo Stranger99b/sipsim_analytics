@@ -1,9 +1,12 @@
 {
-  "public_id": "+375445251894-1778143952.8030671",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
-  "issues": [],
+  "direction": "Европа",
+  "quality_score": 2,
+  "outcome": "not_interested",
+  "issues": [
+    "не предложил альтернативу"
+  ],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)"
+  "manager_highlights": "Менеджер корректно ответил на прямой вопрос, но упустил очевидную возможность: возвратный клиент, который уже ездил с компанией, — идеальный момент предложить туры по России и СНГ вместо простого 'нет'. Диалог закрыт без попытки удержать клиента.",
+  "public_id": "+375445251894-1778143952.8030671",
+  "is_agent": false
 }

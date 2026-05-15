@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251895-1776955813.6833498",
   "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "quality_score": 4,
+  "outcome": "info_only",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Ольга оперативно и доброжелательно решила вопрос клиента: подтвердила возможность оплаты через ЕРИП и согласовала срок до 30-го числа. Пообещала сразу выставить счёт — чёткое и профессиональное закрытие обращения.",
+  "public_id": "+375445251895-1776955813.6833498",
   "is_agent": false
 }

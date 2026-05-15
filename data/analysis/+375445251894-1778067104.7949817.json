@@ -1,9 +1,10 @@
 {
-  "public_id": "+375445251894-1778067104.7949817",
   "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "quality_score": 4,
+  "outcome": "info_only",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)"
+  "manager_highlights": "Менеджер лаконично и профессионально перенаправил холодный звонок от рекламного агента на почту, не тратя лишнего времени. Нестандартная ситуация отработана корректно.",
+  "public_id": "+375445251894-1778067104.7949817",
+  "is_agent": false
 }

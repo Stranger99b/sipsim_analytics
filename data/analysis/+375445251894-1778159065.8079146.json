@@ -1,9 +1,10 @@
 {
-  "public_id": "+375445251894-1778159065.8079146",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Карелия",
+  "quality_score": 4,
+  "outcome": "callback",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)"
+  "manager_highlights": "B2B-звонок от агентства TravelA с запросом на бронирование по сниженной цене (−$5/чел). Менеджер корректно объяснила, что скидочное решение принимает руководство, и направила партнёра в чат Travelap — правильная маршрутизация нестандартного запроса без лишних обещаний.",
+  "public_id": "+375445251894-1778159065.8079146",
+  "is_agent": false
 }

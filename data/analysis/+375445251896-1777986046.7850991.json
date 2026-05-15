@@ -1,11 +1,11 @@
 {
-  "public_id": "+375445251896-1777986046.7850991",
   "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "quality_score": 4,
+  "outcome": "info_only",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер профессионально и терпеливо разъяснил агенту структуру договора: разбивку суммы на основной договор и приложение №1, порядок предоплаты и курсовой оговорки. Агент получил исчерпывающие ответы на все вопросы и завершил звонок с полным пониманием.",
+  "public_id": "+375445251896-1777986046.7850991",
   "is_agent": true,
   "agent_name": "Агент"
 }

@@ -1,9 +1,10 @@
 {
-  "public_id": "+375445251894-1778144584.8033014",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Абхазия",
+  "quality_score": 4,
+  "outcome": "callback",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)"
+  "manager_highlights": "Менеджер профессионально обработала запрос постоянного клиента: уточнила детали, быстро проверила наличие мест и, не найдя их, сразу предложила поискать альтернативу вместо отказа. Зафиксирован чёткий следующий шаг — отправить варианты через Instagram.",
+  "public_id": "+375445251894-1778144584.8033014",
+  "is_agent": false
 }

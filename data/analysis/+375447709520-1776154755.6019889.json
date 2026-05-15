@@ -1,10 +1,14 @@
 {
+  "direction": "Карелия",
+  "quality_score": 3,
+  "outcome": "callback",
+  "issues": [
+    "не взял контакт"
+  ],
+  "objections": [
+    "отель не в Петрозаводске"
+  ],
+  "manager_highlights": "Менеджер профессионально провела B2B-переговоры по объединению групп: обсудила наполнение, ценовые диапазоны отелей и логистику выезда. Однако не зафиксировала контакт партнёра явно и не назначила конкретные сроки обратной связи.",
   "public_id": "+375447709520-1776154755.6019889",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
-  "issues": [],
-  "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
   "is_agent": false
 }

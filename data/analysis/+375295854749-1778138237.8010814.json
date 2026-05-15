@@ -1,9 +1,10 @@
 {
-  "public_id": "+375295854749-1778138237.8010814",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Питер",
+  "quality_score": 4,
+  "outcome": "booked",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)"
+  "manager_highlights": "Менеджер чётко подтвердила детали заказа (Питер, 16 июля), предложила удобный канал коммуникации и обозначила конкретный следующий шаг — SMS со ссылками на мессенджеры для сбора данных и оформления договора. Звонок короткий, но результативный: клиент переведён в рабочий чат.",
+  "public_id": "+375295854749-1778138237.8010814",
+  "is_agent": false
 }

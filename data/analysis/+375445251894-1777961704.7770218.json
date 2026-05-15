@@ -1,9 +1,12 @@
 {
-  "public_id": "+375445251894-1777961704.7770218",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
-  "issues": [],
+  "direction": "Грузия",
+  "quality_score": 3,
+  "outcome": "not_interested",
+  "issues": [
+    "не предложил альтернативу"
+  ],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)"
+  "manager_highlights": "Менеджер оперативно ответил на конкретный вопрос о наличии мест. Однако не предложил альтернативные даты или другие туры, хотя клиент явно был заинтересован в поездке.",
+  "public_id": "+375445251894-1777961704.7770218",
+  "is_agent": false
 }

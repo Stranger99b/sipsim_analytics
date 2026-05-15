@@ -1,9 +1,10 @@
 {
-  "public_id": "+375445251894-1777970948.7801010",
   "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "quality_score": 4,
+  "outcome": "info_only",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)"
+  "manager_highlights": "Корректно обработал B2B-звонок от потенциального сопровождающего: вежливо перенаправил в Telegram с конкретным номером для связи с руководством. Честно обозначил границы своей компетенции («не владею информацией»), не дав ложных обещаний.",
+  "public_id": "+375445251894-1777970948.7801010",
+  "is_agent": false
 }

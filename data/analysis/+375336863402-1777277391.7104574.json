@@ -1,10 +1,10 @@
 {
-  "public_id": "+375336863402-1777277391.7104574",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Дагестан",
+  "quality_score": 4,
+  "outcome": "interested",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер чётко отработал подтверждающий звонок: уточнил актуальность заказа, зафиксировал 2 места, объяснил следующий шаг (чат-менеджер запросит данные для бронирования). Звонок короткий, но содержательный — цель достигнута.",
+  "public_id": "+375336863402-1777277391.7104574",
   "is_agent": false
 }

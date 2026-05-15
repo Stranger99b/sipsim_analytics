@@ -1,10 +1,10 @@
 {
-  "public_id": "+375293040995-1777707711.7575831",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Грузия",
+  "quality_score": 4,
+  "outcome": "interested",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Анастасия чётко и по делу ответила на все конкретные вопросы клиента: наличие купе и доплата, варианты отелей с ценами, завтраки, расстояние до пляжа. Грамотно перевела диалог в мессенджер для продолжения — клиент готов приехать в офис и внести первый взнос.",
+  "public_id": "+375293040995-1777707711.7575831",
   "is_agent": false
 }

@@ -1,10 +1,12 @@
 {
-  "public_id": "+375445251894-1776853971.6664199",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Питер",
+  "quality_score": 4,
+  "outcome": "booked",
   "issues": [],
-  "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "objections": [
+    "снятие брони до оплаты"
+  ],
+  "manager_highlights": "Карина оперативно проверила срок оплаты, зафиксировала дату визита и развеяла опасение клиента насчёт снятия брони. Дополнительно уточнила статус договора и предложила варианты подписания — грамотное завершение звонка.",
+  "public_id": "+375445251894-1776853971.6664199",
   "is_agent": false
 }

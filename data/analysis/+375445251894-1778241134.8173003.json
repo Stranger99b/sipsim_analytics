@@ -1,9 +1,10 @@
 {
-  "public_id": "+375445251894-1778241134.8173003",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Дагестан",
+  "quality_score": 4,
+  "outcome": "info_only",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)"
+  "manager_highlights": "Менеджер чётко и по делу ответила на конкретный вопрос о посадке в Бобруйске: подтвердила забор, объяснила про канал с точкой посадки и уведомление от сопровождающего. Лишних слов нет, клиент ушёл с полной информацией.",
+  "public_id": "+375445251894-1778241134.8173003",
+  "is_agent": false
 }

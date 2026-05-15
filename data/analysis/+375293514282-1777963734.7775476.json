@@ -1,9 +1,10 @@
 {
-  "public_id": "+375293514282-1777963734.7775476",
   "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "quality_score": 3,
+  "outcome": "client_unavailable",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)"
+  "manager_highlights": "Менеджер вежливо представился и не настаивал, когда клиент сказал что занят. Договорился перезвонить позже — всё корректно.",
+  "public_id": "+375293514282-1777963734.7775476",
+  "is_agent": false
 }

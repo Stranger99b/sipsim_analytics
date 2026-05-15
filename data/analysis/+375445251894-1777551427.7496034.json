@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251894-1777551427.7496034",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Питер",
+  "quality_score": 4,
+  "outcome": "booked",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "B2B-звонок от агентства Travelab: чёткий и быстрый ответ на конкретный вопрос о подселении сестры к уже забронированному туристу. Менеджер сразу подтвердила возможность и предложила корректное решение — новую заявку с примечанием.",
+  "public_id": "+375445251894-1777551427.7496034",
   "is_agent": false
 }

@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251894-1777452167.7344149",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Дагестан",
+  "quality_score": 4,
+  "outcome": "booked",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "B2B-звонок от турагентства: менеджер чётко объяснил условия по комиссии (30 USD + 50 руб.), порядок оплаты долларовой части (за 7 дней до выезда) и подтвердил бронирование через личный кабинет. Профессиональное ведение партнёрского запроса без лишних слов.",
+  "public_id": "+375445251894-1777452167.7344149",
   "is_agent": false
 }

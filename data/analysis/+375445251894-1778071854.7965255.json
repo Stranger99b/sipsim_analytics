@@ -1,9 +1,10 @@
 {
-  "public_id": "+375445251894-1778071854.7965255",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Питер-Карелия",
+  "quality_score": 4,
+  "outcome": "booked",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)"
+  "manager_highlights": "Профессиональный B2B-звонок: менеджер оперативно уточнил наличие 2 мест на 9 июля с посадкой в Витебске и подтвердил бронирование без лишних вопросов.",
+  "public_id": "+375445251894-1778071854.7965255",
+  "is_agent": false
 }

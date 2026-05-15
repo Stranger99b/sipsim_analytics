@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251896-1776859648.6684611",
   "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "quality_score": 4,
+  "outcome": "info_only",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер оперативно и чётко дал навигацию до кабинета 107 (7 этаж, налево от лифтов). Звонок — сугубо организационный, не продажный; задача выполнена полностью.",
+  "public_id": "+375445251896-1776859648.6684611",
   "is_agent": false
 }

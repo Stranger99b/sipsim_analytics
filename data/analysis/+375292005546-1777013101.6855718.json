@@ -1,10 +1,10 @@
 {
-  "public_id": "+375292005546-1777013101.6855718",
   "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "quality_score": 3,
+  "outcome": "callback",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Кристина перевела коммуникацию в мессенджер — не нашла клиента в Вайбере и отправила ссылку на чат через СМС. Чисто технический звонок, продажного диалога не было.",
+  "public_id": "+375292005546-1777013101.6855718",
   "is_agent": false
 }

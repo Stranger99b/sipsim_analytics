@@ -1,9 +1,12 @@
 {
-  "public_id": "+375256581838-1778153113.8059730",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Санкт-Петербург",
+  "quality_score": 3,
+  "outcome": "not_interested",
   "issues": [],
-  "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)"
+  "objections": [
+    "тур уже неактуален"
+  ],
+  "manager_highlights": "Менеджер вежливо уточнила актуальность заказа по Питеру и сделала попытку выяснить альтернативный интерес клиента. Однако не предложила конкретных альтернатив и не договорилась о следующем шаге.",
+  "public_id": "+375256581838-1778153113.8059730",
+  "is_agent": false
 }

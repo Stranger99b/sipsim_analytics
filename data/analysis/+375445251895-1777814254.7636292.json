@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251895-1777814254.7636292",
   "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "quality_score": 3,
+  "outcome": "info_only",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Короткий технический звонок — менеджер уточнила контактный номер для отправки материалов через Viber. Продажной составляющей нет, задача выполнена по существу.",
+  "public_id": "+375445251895-1777814254.7636292",
   "is_agent": false
 }

@@ -1,10 +1,10 @@
 {
-  "public_id": "+375291293316-1777012841.6854995",
-  "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "direction": "Абхазия",
+  "quality_score": 4,
+  "outcome": "booked",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер уверенно ответил на широкий спектр вопросов клиента — цена, отель, условия оплаты, подселение, питание, дорога, температура — без потери темпа. Клиент принял решение забронировать тур прямо в ходе звонка.",
+  "public_id": "+375291293316-1777012841.6854995",
   "is_agent": false
 }

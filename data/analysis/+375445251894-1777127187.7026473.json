@@ -1,10 +1,10 @@
 {
-  "public_id": "+375445251894-1777127187.7026473",
   "direction": null,
-  "quality_score": null,
-  "outcome": "unknown",
+  "quality_score": 4,
+  "outcome": "info_only",
   "issues": [],
   "objections": [],
-  "manager_highlights": "Анализ не удался: Empty response from Claude (exit=1)",
+  "manager_highlights": "Менеджер чётко и без лишних слов ответил на конкретный вопрос о местонахождении офиса. Звонок решён эффективно.",
+  "public_id": "+375445251894-1777127187.7026473",
   "is_agent": false
 }
