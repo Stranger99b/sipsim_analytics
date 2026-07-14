@@ -2,6 +2,11 @@
 """
 Ежедневный пайплайн SIPSIM аналитики.
 
+Каждый день: fetch CDR → транскрибация (Deepgram) → AI-анализ (Claude) → отчёт + Excel.
+Дневной отчёт РОПу в Telegram ОТКЛЮЧЁН (сохраняется локально в data/daily_reports/);
+в Telegram остаётся только недельный отчёт (run_weekly.py, Пн). Ежедневная обработка
+малыми порциями нужна, чтобы данные для недельного отчёта готовились заранее.
+
 Запуск:
   python3 run_daily.py                   # вчера
   python3 run_daily.py --date 2026-05-10
@@ -26,7 +31,8 @@ from analyze_calls import analyze_date
 from manager_stats import get_daily_manager_block, load_phones_map
 from direction_stats import get_daily_direction_block
 from export_excel import export_problem_calls_excel
-from send_telegram import send_message, send_document
+# send_telegram больше не используется в дневном прогоне: дневной отчёт в Telegram
+# отключён (остаётся только недельный). Транскрибация/анализ считаются ежедневно.
 
 DATA_DIR = Path(__file__).parent.parent / "data"
 CALLS_DIR = DATA_DIR / "calls"
@@ -290,14 +296,19 @@ def main():
     if excel_path:
         print(f"[run_daily] Excel saved: {excel_path}")
 
-    # 6. Отправить в Telegram
-    print("\n[run_daily] Step 6: Sending to Telegram...")
-    send_message(full_report, parse_mode="HTML")
+    # 6. Ежедневный отчёт РОПу в Telegram ОТКЛЮЧЁН — в Telegram остаётся только
+    #    недельный отчёт. Данные (fetch → transcribe → analyze) обрабатываются
+    #    каждый день малыми порциями и агрегируются в недельном отчёте. Сам дневной
+    #    отчёт считаем и сохраняем локально, но НЕ отправляем.
+    import re as _re
+    print("\n[run_daily] Step 6: Saving daily report locally (Telegram disabled)...")
+    reports_dir = DATA_DIR / "daily_reports"
+    reports_dir.mkdir(exist_ok=True)
+    report_path = reports_dir / f"{target_date.strftime('%Y-%m-%d')}.txt"
+    report_path.write_text(_re.sub(r"<[^>]+>", "", full_report), encoding="utf-8")
+    print(f"[run_daily] Report saved (not sent to Telegram): {report_path}")
     if excel_path:
-        send_document(
-            str(excel_path),
-            caption=f"📋 Все звонки с транскриптами — {target_date.strftime('%d.%m.%Y')}",
-        )
+        print(f"[run_daily] Excel saved (not sent): {excel_path}")
     print("\n[run_daily] Done!")
 
 
