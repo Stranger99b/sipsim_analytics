@@ -35,6 +35,9 @@ TRANSCRIPTS_DIR = DATA_DIR / "transcripts"
 DEEP_DIR = DATA_DIR / "deep"
 DEEP_DIR.mkdir(parents=True, exist_ok=True)
 CLAUDE_BIN = shutil.which("claude") or "/home/user/.local/bin/claude"
+# claude --print без --model берёт модель сессии (Opus, дорого). Haiku 4.5 ~5× дешевле;
+# для наставнического разбора её достаточно. Переопределить: --model claude-sonnet-5.
+MODEL = "claude-haiku-4-5"
 
 # Менеджеры (SIPSIM-имя → короткое). РОП/агенты/общий отдел не разбираем.
 MANAGERS = {"Фёдорова Анастасия", "Рогачевская Карина", "Яршевич Екатерина", "Лазарчук Кристина"}
@@ -72,7 +75,7 @@ def _format_transcript(tr: dict) -> str:
     return tr.get("transcript", "")
 
 
-def analyze_deep(public_id: str, force: bool = False) -> dict | None:
+def analyze_deep(public_id: str, force: bool = False, model: str = MODEL) -> dict | None:
     out_file = DEEP_DIR / f"{public_id}.json"
     if out_file.exists() and not force:
         return json.loads(out_file.read_text())
@@ -87,7 +90,8 @@ def analyze_deep(public_id: str, force: bool = False) -> dict | None:
     for attempt in range(3):
         try:
             proc = subprocess.run(
-                [CLAUDE_BIN, "--print", "--dangerously-skip-permissions", "-p", prompt],
+                [CLAUDE_BIN, "--print", "--model", model,
+                 "--dangerously-skip-permissions", "-p", prompt],
                 capture_output=True, text=True, timeout=150,
             )
             raw = proc.stdout.strip() if proc.returncode == 0 else ""
@@ -133,12 +137,13 @@ def find_candidates(start_dt, end_dt):
     return ids
 
 
-def backfill(ids, workers=5, force=False):
+def backfill(ids, workers=5, force=False, model=MODEL):
     todo = [i for i in ids if force or not (DEEP_DIR / f"{i}.json").exists()]
-    print(f"[deep] кандидатов: {len(ids)}, к разбору: {len(todo)}, воркеров: {workers}", flush=True)
+    print(f"[deep] кандидатов: {len(ids)}, к разбору: {len(todo)}, "
+          f"воркеров: {workers}, модель: {model}", flush=True)
     done = 0
     with ThreadPoolExecutor(max_workers=workers) as ex:
-        futs = {ex.submit(analyze_deep, i, force): i for i in todo}
+        futs = {ex.submit(analyze_deep, i, force, model): i for i in todo}
         for fut in as_completed(futs):
             done += 1
             r = fut.result()
@@ -153,6 +158,7 @@ def main():
     ap.add_argument("--start"); ap.add_argument("--end")
     ap.add_argument("--workers", type=int, default=5)
     ap.add_argument("--force", action="store_true")
+    ap.add_argument("--model", default=MODEL, help=f"по умолчанию {MODEL} (дёшево)")
     a = ap.parse_args()
     if a.start:
         start = datetime.strptime(a.start, "%Y-%m-%d")
@@ -167,7 +173,7 @@ def main():
         end_day = today.day if (y, m) == (today.year, today.month) else monthrange(y, m)[1]
         end = datetime(y, m, end_day, 23, 59, 59)
     ids = find_candidates(start, end)
-    backfill(ids, workers=a.workers, force=a.force)
+    backfill(ids, workers=a.workers, force=a.force, model=a.model)
 
 
 if __name__ == "__main__":

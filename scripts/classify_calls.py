@@ -36,6 +36,9 @@ TRANSCRIPTS_DIR = DATA_DIR / "transcripts"
 TOPICS_DIR = DATA_DIR / "topics"
 TOPICS_DIR.mkdir(parents=True, exist_ok=True)
 CLAUDE_BIN = shutil.which("claude") or "/home/user/.local/bin/claude"
+# Классификация — простая задача → дешёвая модель. claude --print без --model берёт
+# модель сессии (Opus, дорого); Haiku 4.5 в ~5 раз дешевле и быстрее.
+MODEL = "claude-haiku-4-5"
 
 MANAGERS = {"Фёдорова Анастасия", "Рогачевская Карина", "Яршевич Екатерина", "Лазарчук Кристина"}
 THEMES = {"продажа", "сервис_по_туру", "отмена_возврат", "оплата",
@@ -56,7 +59,7 @@ PROMPT = """Определи ТЕМУ входящего телефонного 
 {transcript}"""
 
 
-def classify(public_id, force=False):
+def classify(public_id, force=False, model=MODEL):
     out = TOPICS_DIR / f"{public_id}.json"
     if out.exists() and not force:
         return json.loads(out.read_text())
@@ -70,7 +73,8 @@ def classify(public_id, force=False):
     for attempt in range(3):
         try:
             proc = subprocess.run(
-                [CLAUDE_BIN, "--print", "--dangerously-skip-permissions", "-p", prompt],
+                [CLAUDE_BIN, "--print", "--model", model,
+                 "--dangerously-skip-permissions", "-p", prompt],
                 capture_output=True, text=True, timeout=120)
             raw = proc.stdout.strip() if proc.returncode == 0 else ""
             if raw.startswith("```"):
@@ -108,12 +112,13 @@ def find_inbound(start_dt, end_dt):
     return ids
 
 
-def backfill(ids, workers=2, force=False):
+def backfill(ids, workers=2, force=False, model=MODEL):
     todo = [i for i in ids if force or not (TOPICS_DIR / f"{i}.json").exists()]
-    print(f"[classify] входящих: {len(ids)}, к классификации: {len(todo)}, воркеров: {workers}", flush=True)
+    print(f"[classify] входящих: {len(ids)}, к классификации: {len(todo)}, "
+          f"воркеров: {workers}, модель: {model}", flush=True)
     done = 0
     with ThreadPoolExecutor(max_workers=workers) as ex:
-        futs = {ex.submit(classify, i, force): i for i in todo}
+        futs = {ex.submit(classify, i, force, model): i for i in todo}
         for _ in as_completed(futs):
             done += 1
             if done % 10 == 0 or done == len(todo):
@@ -125,6 +130,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--month"); ap.add_argument("--workers", type=int, default=2)
     ap.add_argument("--force", action="store_true")
+    ap.add_argument("--model", default=MODEL, help=f"по умолчанию {MODEL} (дёшево)")
     a = ap.parse_args()
     today = datetime.now()
     if a.month:
@@ -134,7 +140,7 @@ def main():
     start = datetime(y, m, 1)
     end_day = today.day if (y, m) == (today.year, today.month) else monthrange(y, m)[1]
     end = datetime(y, m, end_day, 23, 59, 59)
-    backfill(find_inbound(start, end), workers=a.workers, force=a.force)
+    backfill(find_inbound(start, end), workers=a.workers, force=a.force, model=a.model)
 
 
 if __name__ == "__main__":
