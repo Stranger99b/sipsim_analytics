@@ -140,12 +140,19 @@ def publish(year, month, end_day):
     gc = _gc()
     sh = gc.open_by_key(SHEET_ID)
     title = f"Звонки {MONTHS_RU[month]} {year}"
+    # Пересоздаём лист через временное имя — нельзя удалить единственный лист в книге.
+    tmp = f"{title}__tmp"
+    for t in (tmp,):
+        try:
+            sh.del_worksheet(sh.worksheet(t))
+        except gspread.WorksheetNotFound:
+            pass
+    ws = sh.add_worksheet(title=tmp, rows=len(rows) + 10, cols=len(HEADER))
     try:
-        old = sh.worksheet(title)
-        sh.del_worksheet(old)
+        sh.del_worksheet(sh.worksheet(title))
     except gspread.WorksheetNotFound:
         pass
-    ws = sh.add_worksheet(title=title, rows=len(rows) + 10, cols=len(HEADER))
+    ws.update_title(title)
 
     values = [HEADER]
     index = {}
