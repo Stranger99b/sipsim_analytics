@@ -31,7 +31,22 @@ DATA_DIR = Path(__file__).parent.parent / "data"
 CALLS_DIR = DATA_DIR / "calls"
 TRANSCRIPTS_DIR = DATA_DIR / "transcripts"
 DEEP_DIR = DATA_DIR / "deep"
+TOPICS_DIR = DATA_DIR / "topics"
 INDEX_PATH = DATA_DIR / "transcript_index.json"
+
+THEME_RU = {"продажа": "Продажа", "сервис_по_туру": "Сервис по туру",
+            "отмена_возврат": "Отмена/возврат", "оплата": "Оплата",
+            "юридический_риск": "Юр. риск", "не_клиент": "Не клиент",
+            "жалоба": "Жалоба", "другое": "Другое"}
+
+
+def _theme_ru(pid):
+    f = TOPICS_DIR / f"{pid}.json"
+    try:
+        d = json.loads(f.read_text())
+        return THEME_RU.get(d.get("theme"), "—")
+    except Exception:
+        return "—"
 
 SHEET_ID = "1cxUyebJDQEC1u5qI-Yqs0hR28hzVNkLpufeGhTKYbbQ"
 CREDS = "/home/user/Analytics_salebot/data/gsheets_credentials.json"
@@ -43,7 +58,7 @@ OUTCOME_RU = {"booked": "Бронь", "interested": "Интерес", "not_inter
               "callback": "Перезвон", "client_unavailable": "Недоступен", "info_only": "Только инфо",
               "complaint": "Жалоба", "wrong_number": "Ошибочный", "no_transcript": "—", "unknown": "—"}
 
-HEADER = ["№", "Дата", "Время", "Менеджер", "Тип", "Телефон клиента", "Направление",
+HEADER = ["№", "Дата", "Время", "Менеджер", "Тип", "Тема", "Телефон клиента", "Направление",
           "Длит.,с", "Качество", "Исход", "Проблемы", "AI-разбор косяка", "ПОЛНЫЙ ТРАНСКРИПТ"]
 
 
@@ -99,6 +114,7 @@ def collect_rows(year, month, end_day):
                     "time": start[11:16] if len(start) >= 16 else "",
                     "manager": name,
                     "type": "Вход." if c.get("call_type") == "inbound" else "Исход.",
+                    "theme": _theme_ru(pid),
                     "phone": c.get("client_number", ""),
                     "direction": a.get("direction") or "",
                     "dur": c.get("duration_sec") or "",
@@ -136,9 +152,9 @@ def publish(year, month, end_day):
     for i, r in enumerate(rows):
         rownum = i + 2  # +1 header, +1 1-based
         index[r["pid"]] = rownum
-        values.append([str(i + 1), r["date"], r["time"], r["manager"], r["type"], r["phone"],
-                       r["direction"], r["dur"], r["quality"], r["outcome"], r["issues"],
-                       r["ai"], r["transcript"]])
+        values.append([str(i + 1), r["date"], r["time"], r["manager"], r["type"], r["theme"],
+                       r["phone"], r["direction"], r["dur"], r["quality"], r["outcome"],
+                       r["issues"], r["ai"], r["transcript"]])
     ws.update(range_name="A1", values=values, value_input_option="RAW")
 
     sid = ws.id
@@ -153,14 +169,14 @@ def publish(year, month, end_day):
                 "textFormat": {"bold": True, "foregroundColor": {"red": 1, "green": 1, "blue": 1}},
                 "wrapStrategy": "WRAP"}},
             "fields": "userEnteredFormat(backgroundColor,textFormat,wrapStrategy)"}},
-        {"repeatCell": {"range": {"sheetId": sid, "startRowIndex": 1, "startColumnIndex": 12, "endColumnIndex": 13},
+        {"repeatCell": {"range": {"sheetId": sid, "startRowIndex": 1, "startColumnIndex": 13, "endColumnIndex": 14},
             "cell": {"userEnteredFormat": {"wrapStrategy": "WRAP", "verticalAlignment": "TOP",
                 "textFormat": {"fontSize": 9}}}, "fields": "userEnteredFormat(wrapStrategy,verticalAlignment,textFormat)"}},
-        {"repeatCell": {"range": {"sheetId": sid, "startRowIndex": 1, "startColumnIndex": 11, "endColumnIndex": 12},
+        {"repeatCell": {"range": {"sheetId": sid, "startRowIndex": 1, "startColumnIndex": 11, "endColumnIndex": 13},
             "cell": {"userEnteredFormat": {"wrapStrategy": "WRAP", "verticalAlignment": "TOP"}},
             "fields": "userEnteredFormat(wrapStrategy,verticalAlignment)"}},
-        W(0, 1, 40), W(1, 2, 72), W(2, 3, 52), W(3, 4, 150), W(4, 5, 56), W(5, 6, 120),
-        W(6, 7, 110), W(7, 8, 56), W(8, 9, 60), W(9, 10, 90), W(10, 11, 170), W(11, 12, 300), W(12, 13, 620),
+        W(0, 1, 40), W(1, 2, 72), W(2, 3, 52), W(3, 4, 150), W(4, 5, 56), W(5, 6, 110), W(6, 7, 120),
+        W(7, 8, 110), W(8, 9, 56), W(9, 10, 60), W(10, 11, 90), W(11, 12, 170), W(12, 13, 300), W(13, 14, 620),
     ]
     sh.batch_update({"requests": reqs})
 

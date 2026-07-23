@@ -6,3 +6,4 @@ __pycache__/
 *.mp3
 *.ogg
 data/transcript_index.json
+data/topics/
