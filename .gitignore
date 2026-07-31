@@ -7,3 +7,4 @@ __pycache__/
 *.ogg
 data/transcript_index.json
 data/topics/
+data/scripts/
