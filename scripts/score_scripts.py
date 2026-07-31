@@ -176,12 +176,22 @@ def backfill(start_dt, end_dt, workers=3, force=False, delay=0.0):
 
 if __name__ == "__main__":
     import argparse
+    from calendar import monthrange
     ap = argparse.ArgumentParser()
-    ap.add_argument("--start", default="2026-07-01")
-    ap.add_argument("--end", default="2026-07-27")
-    ap.add_argument("--workers", type=int, default=3)
-    ap.add_argument("--delay", type=float, default=0.0, help="пауза между звонками (сек), для тихого добора")
+    ap.add_argument("--month", help="YYYY-MM (по умолчанию текущий месяц до сегодня)")
+    ap.add_argument("--start", help="YYYY-MM-DD (ручной диапазон, override)")
+    ap.add_argument("--end", help="YYYY-MM-DD")
+    ap.add_argument("--workers", type=int, default=1, help="1 стабильно (частотный лимит); 3 падает")
+    ap.add_argument("--delay", type=float, default=4.0, help="пауза между звонками (сек)")
     ap.add_argument("--force", action="store_true")
     a = ap.parse_args()
-    backfill(datetime.strptime(a.start, "%Y-%m-%d"),
-             datetime.strptime(a.end, "%Y-%m-%d"), a.workers, a.force, a.delay)
+    today = datetime.now()
+    if a.start and a.end:
+        start = datetime.strptime(a.start, "%Y-%m-%d")
+        end = datetime.strptime(a.end, "%Y-%m-%d")
+    else:
+        y, m = map(int, a.month.split("-")) if a.month else (today.year, today.month)
+        start = datetime(y, m, 1)
+        end_day = today.day if (y, m) == (today.year, today.month) else monthrange(y, m)[1]
+        end = datetime(y, m, end_day, 23, 59, 59)
+    backfill(start, end, a.workers, a.force, a.delay)
