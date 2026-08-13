@@ -132,35 +132,35 @@ def analyze_deep(public_id: str, force: bool = False, engine: str = "qwen",
     text = _format_transcript(tr)
     if not text or len(text.strip()) < 20:
         return None
-    prompt = PROMPT.replace("{transcript}", text)
-    for attempt in range(3):
-        try:
-            raw = _call_llm(prompt, engine, model)
-            if raw.startswith("```"):
-                raw = raw.split("```")[1]
-                if raw.startswith("json"):
-                    raw = raw[4:]
-            if "{" in raw and "}" in raw:          # выделяем JSON из возможного текста вокруг
-                raw = raw[raw.index("{"): raw.rindex("}") + 1]
-            if not raw:
-                raise ValueError("empty")
-            parsed = json.loads(raw)
-            parsed["public_id"] = public_id
-            out_file.write_text(json.dumps(parsed, ensure_ascii=False, indent=2))
-            return parsed
-        except _QuotaError:
-            if engine == "qwen":
-                engine = "claude"                  # квота Qwen — доразбор на claude-haiku
-                print("[deep] QWEN_QUOTA_EXCEEDED → фолбэк claude-haiku", flush=True)
-                continue
-            print(f"[deep] ERROR {public_id}: quota", flush=True)
-            return None
-        except Exception as e:
-            if attempt < 2:
-                time.sleep((attempt + 1) * 6)
-            else:
-                print(f"[deep] ERROR {public_id}: {e}", flush=True)
-                return None
+    prompt = PROMPT.replace("{transcript}", text[:5000])   # длинные обрезаем — разбору хватает
+    # Порядок движков: сначала выбранный (qwen, 2 попытки), затем фолбэк на claude-haiku (1) —
+    # если Qwen отдал пусто/таймаут/квоту. Так надёжно и экономно.
+    engines = [(engine, 2), ("claude", 1)] if engine == "qwen" else [("claude", 3)]
+    last = "?"
+    for eng, tries in engines:
+        for _t in range(tries):
+            try:
+                raw = _call_llm(prompt, eng, model)
+                if raw.startswith("```"):
+                    raw = raw.split("```")[1]
+                    if raw.startswith("json"):
+                        raw = raw[4:]
+                if "{" in raw and "}" in raw:      # выделяем JSON из возможного текста вокруг
+                    raw = raw[raw.index("{"): raw.rindex("}") + 1]
+                if not raw:
+                    raise ValueError("empty")
+                parsed = json.loads(raw)
+                parsed["public_id"] = public_id
+                out_file.write_text(json.dumps(parsed, ensure_ascii=False, indent=2))
+                return parsed
+            except _QuotaError:
+                print("[deep] QWEN_QUOTA_EXCEEDED → claude-haiku", flush=True)
+                break                              # к следующему движку (claude)
+            except Exception as e:
+                last = str(e)[:70]
+                time.sleep(4)
+    print(f"[deep] ERROR {public_id}: {last}", flush=True)
+    return None
 
 
 def find_candidates(start_dt, end_dt):
