@@ -17,6 +17,7 @@
 """
 import argparse
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -38,6 +39,31 @@ CLAUDE_BIN = shutil.which("claude") or "/home/user/.local/bin/claude"
 # claude --print без --model берёт модель сессии (Opus, дорого). Haiku 4.5 ~5× дешевле;
 # для наставнического разбора её достаточно. Переопределить: --model claude-sonnet-5.
 MODEL = "claude-haiku-4-5"
+
+# ДВИЖОК по умолчанию — Qwen (экономит токены Anthropic; разбор — только для показа, не в скоринге).
+# --role reason = deepseek-v4-pro (сильная в рассуждениях). При квоте Qwen — фолбэк на claude-haiku.
+_LOCAL_BIN = os.path.expanduser("~/.local/bin")
+QWEN_BIN = shutil.which("qwen-ask") or os.path.join(_LOCAL_BIN, "qwen-ask")
+QWEN_ENV = {**os.environ, "PATH": os.environ.get("PATH", "") + os.pathsep + _LOCAL_BIN}
+QWEN_ROLE = "reason"
+
+
+class _QuotaError(Exception):
+    pass
+
+
+def _call_llm(prompt: str, engine: str, model: str) -> str:
+    """Один запрос к LLM. engine='qwen'|'claude'. Возвращает stdout; при квоте Qwen → _QuotaError."""
+    if engine == "qwen":
+        proc = subprocess.run([QWEN_BIN, "--role", QWEN_ROLE, prompt], env=QWEN_ENV,
+                              capture_output=True, text=True, timeout=180)
+        if proc.returncode == 3 or "QWEN_QUOTA_EXCEEDED" in (proc.stderr or ""):
+            raise _QuotaError()
+    else:
+        proc = subprocess.run(
+            [CLAUDE_BIN, "--print", "--model", model, "--dangerously-skip-permissions", "-p", prompt],
+            capture_output=True, text=True, timeout=180)
+    return proc.stdout.strip() if proc.returncode == 0 else ""
 
 # Менеджеры (SIPSIM-имя → короткое). РОП/агенты/общий отдел не разбираем.
 MANAGERS = {"Фёдорова Анастасия", "Рогачевская Карина", "Яршевич Екатерина", "Лазарчук Кристина"}
@@ -94,7 +120,8 @@ def _format_transcript(tr: dict) -> str:
     return tr.get("transcript", "")
 
 
-def analyze_deep(public_id: str, force: bool = False, model: str = MODEL) -> dict | None:
+def analyze_deep(public_id: str, force: bool = False, engine: str = "qwen",
+                 model: str = MODEL) -> dict | None:
     out_file = DEEP_DIR / f"{public_id}.json"
     if out_file.exists() and not force:
         return json.loads(out_file.read_text())
@@ -108,25 +135,29 @@ def analyze_deep(public_id: str, force: bool = False, model: str = MODEL) -> dic
     prompt = PROMPT.replace("{transcript}", text)
     for attempt in range(3):
         try:
-            proc = subprocess.run(
-                [CLAUDE_BIN, "--print", "--model", model,
-                 "--dangerously-skip-permissions", "-p", prompt],
-                capture_output=True, text=True, timeout=150,
-            )
-            raw = proc.stdout.strip() if proc.returncode == 0 else ""
+            raw = _call_llm(prompt, engine, model)
             if raw.startswith("```"):
                 raw = raw.split("```")[1]
                 if raw.startswith("json"):
                     raw = raw[4:]
+            if "{" in raw and "}" in raw:          # выделяем JSON из возможного текста вокруг
+                raw = raw[raw.index("{"): raw.rindex("}") + 1]
             if not raw:
-                raise ValueError(f"empty (exit={proc.returncode})")
+                raise ValueError("empty")
             parsed = json.loads(raw)
             parsed["public_id"] = public_id
             out_file.write_text(json.dumps(parsed, ensure_ascii=False, indent=2))
             return parsed
+        except _QuotaError:
+            if engine == "qwen":
+                engine = "claude"                  # квота Qwen — доразбор на claude-haiku
+                print("[deep] QWEN_QUOTA_EXCEEDED → фолбэк claude-haiku", flush=True)
+                continue
+            print(f"[deep] ERROR {public_id}: quota", flush=True)
+            return None
         except Exception as e:
             if attempt < 2:
-                time.sleep((attempt + 1) * 8)
+                time.sleep((attempt + 1) * 6)
             else:
                 print(f"[deep] ERROR {public_id}: {e}", flush=True)
                 return None
@@ -156,13 +187,13 @@ def find_candidates(start_dt, end_dt):
     return ids
 
 
-def backfill(ids, workers=5, force=False, model=MODEL):
+def backfill(ids, workers=3, force=False, engine="qwen", model=MODEL):
     todo = [i for i in ids if force or not (DEEP_DIR / f"{i}.json").exists()]
-    print(f"[deep] кандидатов: {len(ids)}, к разбору: {len(todo)}, "
-          f"воркеров: {workers}, модель: {model}", flush=True)
+    print(f"[deep] кандидатов: {len(ids)}, к разбору: {len(todo)}, воркеров: {workers}, "
+          f"движок: {engine}{' ('+model+')' if engine=='claude' else ' (--role '+QWEN_ROLE+')'}", flush=True)
     done = 0
     with ThreadPoolExecutor(max_workers=workers) as ex:
-        futs = {ex.submit(analyze_deep, i, force, model): i for i in todo}
+        futs = {ex.submit(analyze_deep, i, force, engine, model): i for i in todo}
         for fut in as_completed(futs):
             done += 1
             r = fut.result()
@@ -175,9 +206,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--month", help="YYYY-MM")
     ap.add_argument("--start"); ap.add_argument("--end")
-    ap.add_argument("--workers", type=int, default=5)
+    ap.add_argument("--workers", type=int, default=3)
     ap.add_argument("--force", action="store_true")
-    ap.add_argument("--model", default=MODEL, help=f"по умолчанию {MODEL} (дёшево)")
+    ap.add_argument("--engine", default="qwen", choices=["qwen", "claude"],
+                    help="qwen (по умолч., экономит токены Anthropic) | claude")
+    ap.add_argument("--model", default=MODEL, help=f"для claude: по умолчанию {MODEL}")
     a = ap.parse_args()
     if a.start:
         start = datetime.strptime(a.start, "%Y-%m-%d")
@@ -192,7 +225,7 @@ def main():
         end_day = today.day if (y, m) == (today.year, today.month) else monthrange(y, m)[1]
         end = datetime(y, m, end_day, 23, 59, 59)
     ids = find_candidates(start, end)
-    backfill(ids, workers=a.workers, force=a.force, model=a.model)
+    backfill(ids, workers=a.workers, force=a.force, engine=a.engine, model=a.model)
 
 
 if __name__ == "__main__":
